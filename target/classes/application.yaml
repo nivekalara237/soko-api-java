@@ -1,0 +1,7 @@
+version: 1.0.0
+name: SOKO-API
+# soko.url: https://soko.isjetokoss.xyz/api/v1/
+soko.url: http://localhost:8000/storage/api/v1/
+max-connection: 5
+time-out-connection: 5
+response-time-out-connection: 20
