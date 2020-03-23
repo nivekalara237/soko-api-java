@@ -4,7 +4,7 @@
     <packaging>jar</packaging>
     <groupId>com.nivekaa</groupId>
     <artifactId>soko_storage</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
     <description>The soko api for java</description>
     <url>http://nivekaa.com</url>
     <organization>
@@ -22,7 +22,7 @@
         <connection>scm:git:git://github.com:nivekalara237/soko-api-java.git</connection>
         <developerConnection>scm:git:git@github.com:nivekalara237/soko-api-java.git</developerConnection>
         <url>https://github.com/nivekalara237/soko-api-java</url>
-        <tag>soko�_storage-1.0.0</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <profiles>
