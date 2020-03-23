@@ -1,5 +1,5 @@
 # soko api for java
-Library to make storage on soko app. 
+Library to make storage in soko app. 
 
 >website of [[SOKO File](https://soko.isjetokoss.xyz)]
 
