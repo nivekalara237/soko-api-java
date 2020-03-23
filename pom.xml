@@ -1,16 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
     <groupId>com.nivekaa</groupId>
     <artifactId>soko_storage</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <description>The soko api for java</description>
     <url>http://nivekaa.com</url>
     <organization>
         <name>Nivekaa DevTeam</name>
         <url>https://nivekaa.com</url>
     </organization>
+	<inceptionYear>2020</inceptionYear>
+	<developers>
+		<developer>
+			<name>Kevin Lactio Kemta</name>
+			<email>kevinlactiokemta@gmail.com</email>
+			<organization>Nivekaa DevTeam</organization>
+			<organizationUrl>https://github.com/nivekalara237</organizationUrl>
+			<timezone>UTC+01:00</timezone>
+		</developer>
+	</developers>
+	<issueManagement>
+		<system>Github</system>
+		<url>https://github.com/nivekalara237/soko-api-java/issues</url>
+	</issueManagement>
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
@@ -62,8 +78,7 @@
         </snapshotRepository>
         <repository>
             <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/
-            </url>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
     <build>
