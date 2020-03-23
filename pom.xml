@@ -4,7 +4,7 @@
     <packaging>jar</packaging>
     <groupId>com.nivekaa</groupId>
     <artifactId>soko_storage</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.0-SNAPSHOT</version>
     <description>The soko api for java</description>
     <url>http://nivekaa.com</url>
     <name>Soko Api Java</name>
