@@ -11,5 +11,8 @@
         <module name="soko-java" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="soko-java" target="8" />
+    </bytecodeTargetLevel>
   </component>
 </project>
