@@ -3,10 +3,9 @@ package com.nivekaa.soko.api;
 import com.google.gson.Gson;
 import com.nivekaa.soko.interceptor.RequestIntercetor;
 import com.nivekaa.soko.parser.GsonParser;
+import com.nivekaa.soko.service.dto.ResultDTO;
 import com.nivekaa.soko.util.FileUtil;
 import com.nivekaa.soko.util.Stringutil;
-import org.apache.commons.codec.Charsets;
-import org.apache.commons.codec.binary.StringUtils;
 import org.apache.hc.client5.http.ConnectionKeepAliveStrategy;
 import org.apache.hc.client5.http.HttpRoute;
 import org.apache.hc.client5.http.classic.methods.HttpDelete;
@@ -44,14 +43,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author nivekaa
@@ -124,11 +120,11 @@ public class SokoHttpClient implements IApi{
                 .build();
     }
 
-    public String get(String path){
+    public ResultDTO get(String path){
         return get(path,null);
     }
 
-    public String get(String path, Map<String, Object> params) {
+    public ResultDTO get(String path, Map<String, Object> params) {
         path = Stringutil.isEmpty(path) ? "" : path;
         URIBuilder builder = new URIBuilder(URI.create(getUrl()+path));
         if (params!=null && !params.isEmpty()){
@@ -140,10 +136,19 @@ public class SokoHttpClient implements IApi{
         try {
             httpGet = new HttpGet(builder.build().toString());
             CloseableHttpResponse clientResponse = client.execute(httpGet);
+            int code = clientResponse.getCode();
+            String body = EntityUtils.toString(clientResponse.getEntity());
+            ResultDTO resultDTO = ResultDTO.builder()
+                    .withCode(code)
+                    .withResponse(body)
+                    .build();
             if (clientResponse.getCode() <= 299 && clientResponse.getCode()>= 200){
-                return EntityUtils.toString(clientResponse.getEntity());
+                return resultDTO;
             }else {
-                return GsonParser.errorMsg(EntityUtils.toString(clientResponse.getEntity()));
+                return ResultDTO.builder()
+                        .withCode(code)
+                        .withResponse(GsonParser.errorMsg(body))
+                        .build();
             }
         } catch (IOException | ParseException | URISyntaxException e) {
             e.printStackTrace();
@@ -152,7 +157,7 @@ public class SokoHttpClient implements IApi{
     }
 
     // basic post request
-    public String post(String path, Map<String, Object> body) throws RuntimeException{
+    public ResultDTO post(String path, Map<String, Object> body) throws RuntimeException{
         HttpPost httpPost = httpPost(path);
         Gson gson = new Gson();
         String stringJson = gson.toJson(body);
@@ -161,10 +166,19 @@ public class SokoHttpClient implements IApi{
         httpPost.setEntity(entity);
         try {
             CloseableHttpResponse clientResponse = client.execute(httpPost);
+            int code = clientResponse.getCode();
+            String resbody = EntityUtils.toString(clientResponse.getEntity());
+            ResultDTO resultDTO = ResultDTO.builder()
+                    .withCode(code)
+                    .withResponse(resbody)
+                    .build();
             if (clientResponse.getCode() <= 299 && clientResponse.getCode()>= 200){
-                return EntityUtils.toString(clientResponse.getEntity());
+                return resultDTO;
             }else {
-                return GsonParser.errorMsg(EntityUtils.toString(clientResponse.getEntity()));
+                return ResultDTO.builder()
+                        .withCode(code)
+                        .withResponse(GsonParser.errorMsg(resbody))
+                        .build();
             }
         } catch (IOException | ParseException e) {
             e.printStackTrace();
@@ -176,7 +190,7 @@ public class SokoHttpClient implements IApi{
         return new HttpPost(URI.create(getUrl()+path));
     }
 
-    public String put(String path, Map<String, Object> body, String id) {
+    public ResultDTO put(String path, Map<String, Object> body, String id) {
         HttpPut httpPost = new HttpPut(URI.create(String.format("%s%s/%s", getUrl(), path, id)));
         String stringJson = new Gson().toJson(body);
         StringEntity entity = new StringEntity(stringJson);
@@ -184,10 +198,19 @@ public class SokoHttpClient implements IApi{
         httpPost.setEntity(entity);
         try {
             CloseableHttpResponse clientResponse = client.execute(httpPost);
+            int code = clientResponse.getCode();
+            String resbody = EntityUtils.toString(clientResponse.getEntity());
+            ResultDTO resultDTO = ResultDTO.builder()
+                    .withCode(code)
+                    .withResponse(resbody)
+                    .build();
             if (clientResponse.getCode() <= 299 && clientResponse.getCode()>= 200){
-                return EntityUtils.toString(clientResponse.getEntity());
+                return resultDTO;
             }else {
-                return GsonParser.errorMsg(EntityUtils.toString(clientResponse.getEntity()));
+                return ResultDTO.builder()
+                        .withCode(code)
+                        .withResponse(GsonParser.errorMsg(resbody))
+                        .build();
             }
         } catch (IOException | ParseException e) {
             e.printStackTrace();
@@ -196,16 +219,25 @@ public class SokoHttpClient implements IApi{
     }
 
     @Override
-    public String delete(String path) {
+    public ResultDTO delete(String path) {
         HttpDelete httpDelete = new HttpDelete(URI.create(String.format("%s%s", getUrl(), path)));
         // String stringJson = new Gson().toJson(body);
 
         try {
             CloseableHttpResponse clientResponse = client.execute(httpDelete);
-            if (clientResponse.getCode() == 200){
-                return EntityUtils.toString(clientResponse.getEntity());
+            int code = clientResponse.getCode();
+            String resbody = EntityUtils.toString(clientResponse.getEntity());
+            ResultDTO resultDTO = ResultDTO.builder()
+                    .withCode(code)
+                    .withResponse(resbody)
+                    .build();
+            if (clientResponse.getCode() <= 299 && clientResponse.getCode()>= 200){
+                return resultDTO;
             }else {
-                return GsonParser.errorMsg(EntityUtils.toString(clientResponse.getEntity()));
+                return ResultDTO.builder()
+                        .withCode(code)
+                        .withResponse(GsonParser.errorMsg(resbody))
+                        .build();
             }
         } catch (IOException | ParseException e) {
             e.printStackTrace();
@@ -214,7 +246,7 @@ public class SokoHttpClient implements IApi{
     }
 
     @Override
-    public String delete(String path, Map<String, Object> body) {
+    public ResultDTO delete(String path, Map<String, Object> body) {
         HttpDelete httpDelete = new HttpDelete(URI.create(String.format("%s%s", getUrl(), path)));
         // String stringJson = new Gson().toJson(body);
         String stringJson = new Gson().toJson(body);
@@ -223,10 +255,19 @@ public class SokoHttpClient implements IApi{
         httpDelete.setEntity(entity);
         try {
             CloseableHttpResponse clientResponse = client.execute(httpDelete);
+            int code = clientResponse.getCode();
+            String resbody = EntityUtils.toString(clientResponse.getEntity());
+            ResultDTO resultDTO = ResultDTO.builder()
+                    .withCode(code)
+                    .withResponse(resbody)
+                    .build();
             if (clientResponse.getCode() <= 299 && clientResponse.getCode()>= 200){
-                return EntityUtils.toString(clientResponse.getEntity());
+                return resultDTO;
             }else {
-                return GsonParser.errorMsg(EntityUtils.toString(clientResponse.getEntity()));
+                return ResultDTO.builder()
+                        .withCode(code)
+                        .withResponse(GsonParser.errorMsg(resbody))
+                        .build();
             }
         } catch (IOException | ParseException e) {
             e.printStackTrace();
@@ -234,10 +275,13 @@ public class SokoHttpClient implements IApi{
         }
     }
 
-    public String multipartPost(String path, Map<String, Object> body, File[] files, String fileQueryName) {
+    public ResultDTO multipartPost(String path, Map<String, Object> body, File[] files, String fileQueryName) {
         if (files!=null){
             if (FileUtil.getFileSizeMegaBytes(FileUtil.filesSize(files)) > FileUtil.MAX_FILE_SIZE_UPLOAD_MB){
-                return ErrorType.FILE_MAX_LENGTH_ATTEMPT.getType();
+                return ResultDTO.builder()
+                        .withCode(400)
+                        .withResponse("bad request: " + ErrorType.FILE_MAX_LENGTH_ATTEMPT.getType())
+                        .build();
             }
         }
 
@@ -247,7 +291,10 @@ public class SokoHttpClient implements IApi{
         }
 
         if (files==null || files.length==0){
-            return ErrorType.MISSING_FILES.getType();
+            return ResultDTO.builder()
+                    .withCode(400)
+                    .withResponse("bad request: " + ErrorType.MISSING_FILES.getType())
+                    .build();
         }else{
             for (File file : files) {
                 builder.addBinaryBody(fileQueryName, file, ContentType.MULTIPART_FORM_DATA, file.getName());
@@ -259,10 +306,19 @@ public class SokoHttpClient implements IApi{
         httpPost.setEntity(multipart);
         try {
             CloseableHttpResponse clientResponse = client.execute(httpPost);
+            int code = clientResponse.getCode();
+            String resbody = EntityUtils.toString(clientResponse.getEntity());
+            ResultDTO resultDTO = ResultDTO.builder()
+                    .withCode(code)
+                    .withResponse(resbody)
+                    .build();
             if (clientResponse.getCode() <= 299 && clientResponse.getCode()>= 200){
-                return EntityUtils.toString(clientResponse.getEntity());
+                return resultDTO;
             }else {
-                return GsonParser.errorMsg(EntityUtils.toString(clientResponse.getEntity()));
+                return ResultDTO.builder()
+                        .withCode(code)
+                        .withResponse(GsonParser.errorMsg(resbody))
+                        .build();
             }
         } catch (IOException | ParseException e) {
             e.printStackTrace();

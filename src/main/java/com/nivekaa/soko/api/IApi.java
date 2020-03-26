@@ -1,6 +1,8 @@
 package com.nivekaa.soko.api;
 
 
+import com.nivekaa.soko.service.dto.ResultDTO;
+
 import java.util.Map;
 
 /**
@@ -10,10 +12,10 @@ import java.util.Map;
  */
 
 public interface IApi {
-    public String get(String path);
-    public String get(String path, Map<String, Object> params);
-    public String post(String path, Map<String, Object>  body);
-    public String put(String path, Map<String, Object>  body, String id);
-    public String delete(String path);
-    public String delete(String path, Map<String, Object>  body);
+    public ResultDTO get(String path);
+    public ResultDTO get(String path, Map<String, Object> params);
+    public ResultDTO post(String path, Map<String, Object>  body);
+    public ResultDTO put(String path, Map<String, Object>  body, String id);
+    public ResultDTO delete(String path);
+    public ResultDTO delete(String path, Map<String, Object>  body);
 }
