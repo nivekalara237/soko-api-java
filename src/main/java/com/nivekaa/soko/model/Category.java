@@ -24,6 +24,15 @@ public class Category implements Serializable {
         this.name = name;
     }
 
+    private Category(Builder builder) {
+        setId(builder.id);
+        setName(builder.name);
+    }
+
+    public static Builder newBuilder() {
+        return new Builder();
+    }
+
     public int getId() {
         return id;
     }
@@ -46,5 +55,27 @@ public class Category implements Serializable {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 '}';
+    }
+
+    public static final class Builder {
+        private int id;
+        private String name;
+
+        private Builder() {
+        }
+
+        public Builder withId(int id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder withName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Category build() {
+            return new Category(this);
+        }
     }
 }

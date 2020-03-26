@@ -47,8 +47,6 @@ public class SokoStorage {
 
 
 
-
-
        /* String fileName = "file_test_.txt";
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
         File file = new File(classLoader.getResource(fileName).getFile());

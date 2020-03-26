@@ -24,6 +24,19 @@ public class User implements Serializable {
     @SerializedName("updated_at")
     private int updatedAt;
 
+    private User(Builder builder) {
+        setId(builder.id);
+        setName(builder.name);
+        setMaxApi(builder.maxApi);
+        setSpaceLeft(builder.spaceLeft);
+        setNumberFiles(builder.numberFiles);
+        setUpdatedAt(builder.updatedAt);
+    }
+
+    public static Builder newBuilder() {
+        return new Builder();
+    }
+
     public Long getId() {
         return id;
     }
@@ -73,5 +86,51 @@ public class User implements Serializable {
     }
 
     public User() {
+    }
+
+    public static final class Builder {
+        private Long id;
+        private String name;
+        private int maxApi;
+        private int spaceLeft;
+        private int numberFiles;
+        private int updatedAt;
+
+        private Builder() {
+        }
+
+        public Builder withId(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder withName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder withMaxApi(int maxApi) {
+            this.maxApi = maxApi;
+            return this;
+        }
+
+        public Builder withSpaceLeft(int spaceLeft) {
+            this.spaceLeft = spaceLeft;
+            return this;
+        }
+
+        public Builder withNumberFiles(int numberFiles) {
+            this.numberFiles = numberFiles;
+            return this;
+        }
+
+        public Builder withUpdatedAt(int updatedAt) {
+            this.updatedAt = updatedAt;
+            return this;
+        }
+
+        public User build() {
+            return new User(this);
+        }
     }
 }

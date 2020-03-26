@@ -2,6 +2,7 @@ package com.nivekaa.soko.service;
 
 import com.nivekaa.soko.api.SokoHttpClient;
 import com.nivekaa.soko.model.File;
+import com.nivekaa.soko.model.builder.FileBuilder;
 import com.nivekaa.soko.model.ListFile;
 import com.nivekaa.soko.parser.FileParser;
 import com.nivekaa.soko.parser.GsonParser;
@@ -26,7 +27,7 @@ public class FileService {
         Map<String, Object> map = new HashMap<>();
         //map.put("name", name);
         map.put("folder", folder);
-        File file = new File();
+        File file = new FileBuilder().createFile();
         java.io.File[] fs = new java.io.File[1];
         fs[0] = fichier;
         String res = httpClient.multipartPost(baseUri, map, fs, "file");
@@ -60,7 +61,7 @@ public class FileService {
         Map<String, Object> map = new HashMap<>();
         map.put("file", b64);
         map.put("folder", folder);
-        File file = new File();
+        File file = new FileBuilder().createFile();
         String res = httpClient.post(baseUri+"/store/base64", map);
         if (GsonParser.isPresents(res)){
             file = FileParser.getInstance().toModel(res);
@@ -75,7 +76,7 @@ public class FileService {
     public File findById(String id){
         String uri = baseUri+"/"+id;
         String res = httpClient.get(uri);
-        File file = new File();
+        File file = new FileBuilder().createFile();
         if (GsonParser.isPresents(res)){
             file = FileParser.getInstance().toModel(res);
             file.setStatus(200);
