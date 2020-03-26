@@ -2,9 +2,11 @@ package com.nivekaa.soko.service;
 
 import com.nivekaa.soko.api.SokoHttpClient;
 import com.nivekaa.soko.model.Folder;
-import com.nivekaa.soko.model.ListFolder;
 import com.nivekaa.soko.parser.FolderParser;
 import com.nivekaa.soko.parser.GsonParser;
+import com.nivekaa.soko.service.dto.ResponseDTO;
+import com.nivekaa.soko.service.dto.ResponseListDTO;
+import com.nivekaa.soko.service.dto.ResultDTO;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,74 +25,67 @@ public class FolderService {
         this.httpClient = httpClient;
     }
 
-    public Folder create(String name, String parent){
+    public ResponseDTO<Folder> create(String name, String parent){
         Map<String, Object> map = new HashMap<>();
         map.put("name", name);
         map.put("parent", parent);
-        Folder folder = new Folder();
-        String res = httpClient.post(baseUri, map);
-        if (GsonParser.isPresents(res)){
-            folder = FolderParser.getInstance().toModel(res);
-            folder.setStatus(200);
-        } else {
-            folder.setStatus(404);
-            folder.setMessage(res);
-        }
-        return folder;
+        ResultDTO res = httpClient.post(baseUri, map);
+       return responseObject(res);
     }
 
-    public Folder find(String id){
+    public ResponseDTO<Folder> find(String id){
         String uri = baseUri+"/"+id;
-        String res = httpClient.get(uri);
-        Folder folder = new Folder();
-        if (GsonParser.isPresents(res)){
-            folder = FolderParser.getInstance().toModel(res);
-            folder.setStatus(200);
-        } else {
-            folder.setStatus(404);
-            folder.setMessage(res);
-        }
-        return folder;
+        ResultDTO res = httpClient.get(uri);
+        return responseObject(res);
     }
 
-    public Folder update(String name, String id){
+    public ResponseDTO<Folder> update(String name, String id){
         Map<String, Object> map = new HashMap<>();
         map.put("name", name);
-        Folder folder = new Folder();
-        String res = httpClient.put(baseUri, map, id);
-        if (GsonParser.isPresents(res)){
-            folder = FolderParser.getInstance().toModel(res);
-            folder.setStatus(200);
-        } else {
-            folder.setStatus(404);
-            folder.setMessage(res);
-        }
-        return folder;
+        ResultDTO res = httpClient.put(baseUri, map, id);
+        return responseObject(res);
     }
 
-    public ListFolder list(int page, Map<String, Object> map){
-        String res = httpClient.get(baseUri, map);
-        ListFolder listFolder = new ListFolder();
-        if (GsonParser.isPresents(res)){
-            listFolder.setList(FolderParser.getInstance().toListModel(res));
-            listFolder.setStatus(200);
-        } else {
-            listFolder.setStatus(404);
-            listFolder.setMessage(res);
-        }
-        return listFolder;
+    public ResponseListDTO<Folder> list(int page, Map<String, Object> map){
+        ResultDTO res = httpClient.get(baseUri, map);
+        return responseList(res);
     }
 
-    public ListFolder list(int page){
-        String res = httpClient.get(baseUri);
-        ListFolder listFolder = new ListFolder();
-        if (GsonParser.isPresents(res)){
-            listFolder.setList(FolderParser.getInstance().toListModel(res));
-            listFolder.setStatus(200);
+    public ResponseListDTO<Folder> list(int page){
+        ResultDTO res = httpClient.get(baseUri);
+        return responseList(res);
+    }
+
+
+    private ResponseDTO<Folder> responseObject(ResultDTO res){
+        if (GsonParser.isPresents(res.getResponse())){
+            return ResponseDTO.builder()
+                    .withStatus(res.getCode())
+                    .withData(FolderParser.getInstance().toModel(res.getResponse()))
+                    .withMessage(null)
+                    .build();
         } else {
-            listFolder.setStatus(404);
-            listFolder.setMessage(res);
+            return ResponseDTO.builder()
+                    .withStatus(res.getCode())
+                    .withData(null)
+                    .withMessage(res.getResponse())
+                    .build();
         }
-        return listFolder;
+    }
+
+    private ResponseListDTO<Folder> responseList(ResultDTO res){
+        if (GsonParser.isPresents(res.getResponse())){
+            return ResponseListDTO.builder()
+                    .withStatus(res.getCode())
+                    .withData(FolderParser.getInstance().toListModel(res.getResponse()))
+                    .withMessage(null)
+                    .build();
+        } else {
+            return ResponseListDTO.builder()
+                    .withStatus(res.getCode())
+                    .withData(null)
+                    .withMessage(res.getResponse())
+                    .build();
+        }
     }
 }
