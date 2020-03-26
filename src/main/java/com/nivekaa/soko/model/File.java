@@ -200,7 +200,7 @@ public class File extends BaseModel implements Serializable {
                 '}';
     }
 
-    public static Builder newBuilder() {
+    public static Builder builder() {
         return new Builder();
     }
 

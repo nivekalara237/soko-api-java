@@ -47,8 +47,8 @@ public class ResponseListDTO<D> {
             return this;
         }
 
-        public ResponseListDTO build() {
-            return new ResponseListDTO(this);
+        public ResponseListDTO<D> build() {
+            return new ResponseListDTO<D>(this);
         }
     }
 }

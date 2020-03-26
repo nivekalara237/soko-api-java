@@ -11,6 +11,9 @@ public class ResponseDTO<D> {
     private String message;
     private D data;
 
+    public ResponseDTO() {
+    }
+
     private ResponseDTO(Builder<D> builder) {
         status = builder.status;
         message = builder.message;
@@ -26,7 +29,7 @@ public class ResponseDTO<D> {
         private String message;
         private D data;
 
-        private Builder() {
+        public Builder() {
         }
 
         public Builder withStatus(int status) {
@@ -44,8 +47,20 @@ public class ResponseDTO<D> {
             return this;
         }
 
-        public ResponseDTO build() {
-            return new ResponseDTO(this);
+        public ResponseDTO<D> build() {
+            return new ResponseDTO<D>(this);
         }
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public D getData() {
+        return data;
     }
 }

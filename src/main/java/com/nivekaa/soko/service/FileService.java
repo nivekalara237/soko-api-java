@@ -2,10 +2,11 @@ package com.nivekaa.soko.service;
 
 import com.nivekaa.soko.api.SokoHttpClient;
 import com.nivekaa.soko.model.File;
-import com.nivekaa.soko.model.builder.FileBuilder;
 import com.nivekaa.soko.model.ListFile;
 import com.nivekaa.soko.parser.FileParser;
 import com.nivekaa.soko.parser.GsonParser;
+import com.nivekaa.soko.service.dto.ResponseDTO;
+import com.nivekaa.soko.service.dto.ResponseListDTO;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,68 +24,90 @@ public class FileService {
         this.httpClient = httpClient;
     }
 
-    public File addOne(java.io.File fichier, String folder){
+    public ResponseDTO<File> addOne(java.io.File fichier, String folder){
         Map<String, Object> map = new HashMap<>();
         //map.put("name", name);
+        ResponseDTO<File> response = new ResponseDTO<File>();
         map.put("folder", folder);
-        File file = new FileBuilder().createFile();
         java.io.File[] fs = new java.io.File[1];
         fs[0] = fichier;
         String res = httpClient.multipartPost(baseUri, map, fs, "file");
         if (GsonParser.isPresents(res)){
-            file = FileParser.getInstance().toModel(res);
-            file.setStatus(200);
+            response = ResponseDTO.builder()
+                    .withData(FileParser.getInstance().toModel(res))
+                    .withStatus(200)
+                    .withMessage(null)
+                    .build();
         } else {
-            file.setStatus(404);
-            file.setMessage(res);
+            response = ResponseDTO.builder()
+                    .withData(null)
+                    .withStatus(200)
+                    .withMessage(res)
+                    .build();
         }
-        return file;
+        return response;
     }
 
-    public ListFile addMultiple(java.io.File[] files, String folder){
+    public ResponseListDTO<File> addMultiple(java.io.File[] files, String folder){
         Map<String, Object> map = new HashMap<>();
         //map.put("name", name);
         map.put("folder", folder);
+        ResponseListDTO<File> response;
         String res = httpClient.multipartPost(baseUri, map, files, "file");
         ListFile listFile = new ListFile();
         if (GsonParser.isPresents(res)){
-            listFile.setList(FileParser.getInstance().toListModel(res));
-            listFile.setStatus(200);
+            return ResponseListDTO.builder()
+                    .withStatus(200)
+                    .withData(FileParser.getInstance().toListModel(res))
+                    .withMessage(null)
+                    .build();
         } else {
-            listFile.setStatus(404);
-            listFile.setMessage(res);
+            return ResponseListDTO.builder()
+                    .withStatus(404)
+                    .withData(null)
+                    .withMessage(res)
+                    .build();
         }
-        return listFile;
     }
 
-    public File createByBase64(String b64, String folder){
+    public ResponseDTO<File> createByBase64(String b64, String folder){
         Map<String, Object> map = new HashMap<>();
         map.put("file", b64);
         map.put("folder", folder);
-        File file = new FileBuilder().createFile();
+        ResponseDTO<File> response;
         String res = httpClient.post(baseUri+"/store/base64", map);
         if (GsonParser.isPresents(res)){
-            file = FileParser.getInstance().toModel(res);
-            file.setStatus(200);
+            response = ResponseDTO.builder()
+                    .withStatus(200)
+                    .withData(FileParser.getInstance().toModel(res))
+                    .withMessage(null)
+                    .build();
         } else {
-            file.setStatus(404);
-            file.setMessage(res);
+            response = ResponseDTO.builder()
+                    .withStatus(200)
+                    .withData(null)
+                    .withMessage(res)
+                    .build();
         }
-        return file;
+        return response;
     }
 
-    public File findById(String id){
+    public ResponseDTO<File> findById(String id){
         String uri = baseUri+"/"+id;
         String res = httpClient.get(uri);
-        File file = new FileBuilder().createFile();
         if (GsonParser.isPresents(res)){
-            file = FileParser.getInstance().toModel(res);
-            file.setStatus(200);
+            return ResponseDTO.builder()
+                    .withStatus(200)
+                    .withData(FileParser.getInstance().toModel(res))
+                    .withMessage(null)
+                    .build();
         } else {
-            file.setStatus(404);
-            file.setMessage(res);
+            return ResponseDTO.builder()
+                    .withStatus(200)
+                    .withData(null)
+                    .withMessage(res)
+                    .build();
         }
-        return file;
     }
 
     public ListFile findByFolder(String folder){
