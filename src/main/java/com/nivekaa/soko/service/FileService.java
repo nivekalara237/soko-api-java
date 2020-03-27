@@ -73,11 +73,14 @@ public class FileService {
                     .withStatus(res.getCode())
                     .withData(FileParser.getInstance().toListModel(res.getResponse()))
                     .withMessage(null)
+                    .withSuccess(true)
+                    .withPagination(GsonParser.getPagination(res.getResponse()))
                     .build();
         } else {
             return ResponseListDTO.builder()
                     .withStatus(res.getCode())
                     .withData(null)
+                    .withSuccess(false)
                     .withMessage(res.getResponse())
                     .build();
         }

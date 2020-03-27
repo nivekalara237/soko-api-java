@@ -4,6 +4,7 @@ import com.google.gson.FieldNamingStrategy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import com.nivekaa.soko.model.Pagination;
 
 import java.lang.reflect.Field;
 
@@ -38,6 +39,42 @@ public class GsonParser {
             return false;
         }else{
             return response.contains("\"presents\":{\"data\":");
+        }
+    }
+
+    public static boolean isSuccess(String response){
+        if (response==null)
+            return false;
+        else {
+            JsonObject jsonObject = builder.create().fromJson(response, JsonObject.class);
+            if (!jsonObject.has("success"))
+                return false;
+            else
+                return jsonObject.get("success").getAsBoolean();
+        }
+    }
+
+    public static Pagination getPagination(String response){
+        if (!isOk(response)){
+            return null;
+        }else {
+
+            if (!response.replaceAll(" ", "").contains("\"meta\":{\"pagination\":{")){
+                return null;
+            }else {
+                Pagination pagin;
+                JsonObject jsonObject = builder.create().fromJson(response, JsonObject.class);
+                String paginationObj = jsonObject
+                        .get("presents")
+                        .getAsJsonObject()
+                        .get("meta")
+                        .getAsJsonObject()
+                        .get("pagination")
+                        .getAsJsonObject()
+                        .toString();
+                pagin = (Pagination) striingToModel(paginationObj, Pagination.class);
+                return pagin;
+            }
         }
     }
 

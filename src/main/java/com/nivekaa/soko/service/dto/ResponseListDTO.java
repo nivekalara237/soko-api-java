@@ -1,5 +1,7 @@
 package com.nivekaa.soko.service.dto;
 
+import com.nivekaa.soko.model.Pagination;
+
 import java.util.List;
 
 /**
@@ -10,13 +12,37 @@ import java.util.List;
 
 public class ResponseListDTO<D> {
     private int status;
+    private boolean success;
     private String message;
     private List<D> data;
+    private Pagination pagination;
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public List<D> getData() {
+        return data;
+    }
+
+    public Pagination getPagination() {
+        return pagination;
+    }
 
     private ResponseListDTO(Builder<D> builder) {
         status = builder.status;
+        success = builder.success;
         message = builder.message;
         data = builder.data;
+        pagination = builder.pagination;
     }
 
     public static Builder builder() {
@@ -26,8 +52,10 @@ public class ResponseListDTO<D> {
 
     public static final class Builder<D> {
         private int status;
+        private boolean success;
         private String message;
         private List<D> data;
+        private Pagination pagination;
 
         private Builder() {
         }
@@ -42,8 +70,18 @@ public class ResponseListDTO<D> {
             return this;
         }
 
-        public Builder withData(D file) {
-            this.data = data;
+        public Builder withSuccess(Boolean success) {
+            this.success = success;
+            return this;
+        }
+
+        public Builder withData(List<D> _data) {
+            this.data = _data;
+            return this;
+        }
+
+        public Builder withPagination(Pagination pagination) {
+            this.pagination = pagination;
             return this;
         }
 

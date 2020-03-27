@@ -3,6 +3,7 @@ package com.nivekaa.soko;
 import com.nivekaa.soko.api.SokoHttpClient;
 import com.nivekaa.soko.model.Folder;
 import com.nivekaa.soko.model.ListFolder;
+import com.nivekaa.soko.service.dto.ResponseListDTO;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,19 +30,21 @@ public class SokoStorage {
 
 
         Soko service = new Soko.Builder()
-                .setApikey("Ba3Tpp61EZ37ljV8Q74yKsK5S63KnxHcTTbkTWLmLqcfBnFn7ubQav6pfEyLrHAm")
+                .setApikey("RagEvtpyXPuCVfzIqShMGl90wUDi0CcIprNg209y0lof7QcYV0IozVTC1bUa4eCZ")
                 .setAppName("Soko Lib test")
                 .build();
 
-        String fileName = "file_test_.txt";
+        /*String fileName = "file_test_.txt";
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-        File file = new File(classLoader.getResource(fileName).getFile());
-        com.nivekaa.soko.model.File f = service.file()
-                .addOne(file,"paratics");
+        File file = new File(classLoader.getResource(fileName).getFile());*/
 
-        System.out.println("==========================");
-        System.out.println(f);
-        System.out.println("==========================");
+        ResponseListDTO<Folder> folders = service.folder().list(1);
+
+        System.out.println("=============kk=============");
+        System.out.println(folders.getData());
+        System.out.println(folders.getStatus());
+        System.out.println(folders.getPagination());
+        System.out.println("=============kk=============");
 
 
 

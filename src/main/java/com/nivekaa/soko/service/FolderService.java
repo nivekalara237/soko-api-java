@@ -74,16 +74,31 @@ public class FolderService {
     }
 
     private ResponseListDTO<Folder> responseList(ResultDTO res){
+
+        System.out.println("-------------------------------");
+        System.out.println(
+
+                ResponseListDTO.builder()
+                        .withStatus(res.getCode())
+                        .withData(FolderParser.getInstance().toListModel(res.getResponse()))
+                        .withMessage(null)
+                        .build().getData()
+        );
+        System.out.println("-------------------------------");
+
         if (GsonParser.isPresents(res.getResponse())){
             return ResponseListDTO.builder()
                     .withStatus(res.getCode())
                     .withData(FolderParser.getInstance().toListModel(res.getResponse()))
+                    .withPagination(GsonParser.getPagination(res.getResponse()))
                     .withMessage(null)
+                    .withSuccess(true)
                     .build();
         } else {
             return ResponseListDTO.builder()
                     .withStatus(res.getCode())
                     .withData(null)
+                    .withSuccess(false)
                     .withMessage(res.getResponse())
                     .build();
         }

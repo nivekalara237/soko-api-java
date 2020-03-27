@@ -8,6 +8,7 @@ package com.nivekaa.soko.service.dto;
 
 public class ResponseDTO<D> {
     private int status;
+    private boolean success;
     private String message;
     private D data;
 
@@ -17,6 +18,7 @@ public class ResponseDTO<D> {
     private ResponseDTO(Builder<D> builder) {
         status = builder.status;
         message = builder.message;
+        success = builder.success;
         data = builder.data;
     }
 
@@ -26,6 +28,7 @@ public class ResponseDTO<D> {
 
     public static final class Builder<D> {
         private int status;
+        private boolean success;
         private String message;
         private D data;
 
@@ -39,6 +42,11 @@ public class ResponseDTO<D> {
 
         public Builder withMessage(String message) {
             this.message = message;
+            return this;
+        }
+
+        public Builder withSuccess(boolean success) {
+            this.success = success;
             return this;
         }
 
@@ -62,5 +70,9 @@ public class ResponseDTO<D> {
 
     public D getData() {
         return data;
+    }
+
+    public boolean isSuccess() {
+        return success;
     }
 }
