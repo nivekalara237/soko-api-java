@@ -22,7 +22,7 @@ public class User implements Serializable {
     @SerializedName("number_files")
     private int numberFiles;
     @SerializedName("updated_at")
-    private int updatedAt;
+    private String updatedAt;
 
     public Long getId() {
         return id;
@@ -64,11 +64,11 @@ public class User implements Serializable {
         this.numberFiles = numberFiles;
     }
 
-    public int getUpdatedAt() {
+    public String getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(int updatedAt) {
+    public void setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
     }
 

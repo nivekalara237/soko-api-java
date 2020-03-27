@@ -8,7 +8,9 @@ import com.nivekaa.soko.service.dto.ResponseDTO;
 import com.nivekaa.soko.service.dto.ResponseListDTO;
 import com.nivekaa.soko.service.dto.ResultDTO;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,35 +22,17 @@ import java.util.Map;
 public class FileService {
     private final SokoHttpClient httpClient;
     private String baseUri = "files";
+    private String ID;
     public FileService(SokoHttpClient httpClient) {
         this.httpClient = httpClient;
     }
 
-    public ResponseDTO<File> addOne(java.io.File fichier, String folder){
-        Map<String, Object> map = new HashMap<>();
-        //map.put("name", name);
-        map.put("folder", folder);
-        java.io.File[] fs = new java.io.File[1];
-        fs[0] = fichier;
-        ResultDTO res = httpClient.multipartPost(baseUri, map, fs, "file");
-        return responseObject(res);
+    public CreateFile uploadFile(){
+        return new CreateFile();
     }
 
-    public ResponseListDTO<File> addMultiple(java.io.File[] files, String folder){
-        Map<String, Object> map = new HashMap<>();
-        //map.put("name", name);
-        map.put("folder", folder);
-        ResultDTO res = httpClient.multipartPost(baseUri, map, files, "file");
-        return responseList(res);
-    }
-
-    public ResponseDTO<File> createByBase64(String b64, String folder){
-        Map<String, Object> map = new HashMap<>();
-        map.put("file", b64);
-        map.put("folder", folder);
-        ResponseDTO<File> response;
-        ResultDTO res = httpClient.post(baseUri+"/store/base64", map);
-        return responseObject(res);
+    public CreateEncodeB64 createByBase64(){
+        return new CreateEncodeB64();
     }
 
     private ResponseDTO<File> responseObject(ResultDTO res){
@@ -61,11 +45,11 @@ public class FileService {
                     .build();
         } else {
                 return ResponseDTO.builder()
-                    .withStatus(res.getCode())
-                    .withData(null)
+                        .withStatus(res.getCode())
+                        .withData(null)
                         .withSuccess(false)
-                    .withMessage(res.getResponse())
-                    .build();
+                        .withMessage(res.getResponse())
+                        .build();
         }
     }
 
@@ -74,16 +58,16 @@ public class FileService {
             return ResponseListDTO.builder()
                     .withStatus(res.getCode())
                     .withData(FileParser.getInstance().toListModel(res.getResponse()))
-                    .withMessage(null)
                     .withSuccess(res.isSuccess())
                     .withPagination(GsonParser.getPagination(res.getResponse()))
+                    .withMessage(null)
                     .build();
         } else {
             return ResponseListDTO.builder()
                     .withStatus(res.getCode())
-                    .withData(null)
                     .withSuccess(res.isSuccess())
                     .withMessage(res.getResponse())
+                    .withData(null)
                     .build();
         }
     }
@@ -121,5 +105,124 @@ public class FileService {
                 .withSuccess(res.isSuccess())
                 .withData(null)
                 .build();
+    }
+
+    public UpdatableField upadte(String id){
+        this.ID = id;
+        return new UpdatableField(id);
+    }
+
+    private class UpdatableField{
+        private String name;
+        private String _id;
+
+        public UpdatableField(String __id) {
+            this._id = __id;
+        }
+
+        public UpdatableField addName(String name){
+            this.name = name;
+            return this;
+        }
+
+        public ResponseDTO<File> execute(){
+            String uri = String.format("%s", baseUri);
+            Map<String, Object> map = new HashMap<>();
+            map.put("name", name);
+            ResultDTO res = httpClient.put(uri, map, _id);
+            return responseObject(res);
+        }
+    }
+
+    private class CreateEncodeB64{
+        private String b64;
+        private String folder;
+
+        public CreateEncodeB64() {}
+
+        public CreateEncodeB64 fileEncoded(String b64){
+            this.b64 = b64;
+            return this;
+        }
+
+        public CreateEncodeB64 folder(String folderIdOrNameOrPath){
+            this.folder = folderIdOrNameOrPath;
+            return this;
+        }
+
+        public ResponseDTO<File> execute(){
+            Map<String, Object> map = new HashMap<>();
+            map.put("file", b64);
+            map.put("folder", folder);
+            ResultDTO res = httpClient.post(baseUri+"/store/base64", map);
+            return responseObject(res);
+        }
+    }
+
+    public class CreateFile{
+        private String folder;
+        private List<java.io.File> files;
+
+        public CreateFile() {
+            files = new ArrayList<>();
+        }
+
+        public CreateFile folder(String folderIdOrNameOrPath){
+            this.folder = folderIdOrNameOrPath;
+            return this;
+        }
+
+        public CreateFile addFile(java.io.File file){
+            if (file!=null){
+                files.add(file);
+            }
+            return this;
+        }
+
+
+        public ResponseListDTO<File> executes(){
+            if (files==null || files.isEmpty()){
+                return ResponseListDTO.builder()
+                        .withPagination(null)
+                        .withSuccess(false)
+                        .withData(null)
+                        .withMessage("Method executes() required an least file")
+                        .withStatus(404)
+                        .build();
+            }
+            String uri = String.format("%s/%s", baseUri, "multi/store");
+            java.io.File[] filesArr = new java.io.File[files.size()];
+            files.toArray(filesArr);
+            Map<String, Object> map = new HashMap<>();
+            map.put("folder", folder);
+            ResultDTO res = httpClient.multipartPost(uri, map, filesArr, "files");
+            return responseList(res);
+        }
+
+
+        public ResponseDTO<File> execute(){
+            if (files==null || files.isEmpty()){
+                return ResponseDTO.builder()
+                        .withSuccess(false)
+                        .withData(null)
+                        .withMessage("Method execute() required an file")
+                        .withStatus(404)
+                        .build();
+            }else if (files.size()>1){
+                return ResponseDTO.builder()
+                        .withSuccess(false)
+                        .withData(null)
+                        .withMessage("Method execute() required only one file, you must call executes() if you should upload many files")
+                        .withStatus(404)
+                        .build();
+            }
+
+            java.io.File[] filesArr = new java.io.File[files.size()];
+            files.toArray(filesArr);
+            Map<String, Object> map = new HashMap<>();
+            map.put("folder", folder);
+            ResultDTO res = httpClient.multipartPost(baseUri, map, filesArr, "files");
+            return responseObject(res);
+        }
     }
 }

@@ -15,8 +15,12 @@ import java.util.List;
  * Class com.nivekaa.soko.parser.CategoryParser
  */
 
-public class CategoryParser {
-    public static Category toModel(String json){
+public class CategoryParser implements IModelParser<Category> {
+    public static FileParser getInstance(){
+        return new FileParser();
+    }
+    @Override
+    public Category toModel(String json) {
         if (!GsonParser.isPresents(json)){
             return null;
         }
@@ -24,17 +28,19 @@ public class CategoryParser {
         JsonObject data = jsonObject.get("presents").getAsJsonObject().get("data").getAsJsonObject();
         return (Category) GsonParser.striingToModel(data.toString(), Category.class);
     }
-    public static List<Category> toListModel(String json){
+
+    @Override
+    public List<Category> toListModel(String json) {
         if (!GsonParser.isPresents(json)){
             return Collections.<Category>emptyList();
         }
         JsonObject jsonObject = new Gson().fromJson(json, JsonObject.class);
         JsonArray array = jsonObject.get("presents").getAsJsonObject().get("data").getAsJsonArray();
-        List<Category> categories = new ArrayList<>();
+        List<Category> files = new ArrayList<>();
         for (int i = 0; i < array.size(); i++) {
-            Category category = (Category) GsonParser.striingToModel(array.get(i).toString(), Category.class);
-            categories.add(category);
+            Category folder = (Category) GsonParser.striingToModel(array.get(i).toString(), Category.class);
+            files.add(folder);
         }
-        return categories;
+        return files;
     }
 }

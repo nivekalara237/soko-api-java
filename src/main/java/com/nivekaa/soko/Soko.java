@@ -1,8 +1,10 @@
 package com.nivekaa.soko;
 
 import com.nivekaa.soko.api.SokoHttpClient;
+import com.nivekaa.soko.service.CategoryService;
 import com.nivekaa.soko.service.FileService;
 import com.nivekaa.soko.service.FolderService;
+import com.nivekaa.soko.service.UserService;
 
 import java.io.IOException;
 import java.security.KeyManagementException;
@@ -68,5 +70,13 @@ public class Soko {
 
     public FileService file(){
         return new FileService(this.httpClient);
+    }
+
+    public UserService user(){
+        return new UserService(this.httpClient);
+    }
+
+    public CategoryService category(){
+        return new CategoryService(this.httpClient);
     }
 }

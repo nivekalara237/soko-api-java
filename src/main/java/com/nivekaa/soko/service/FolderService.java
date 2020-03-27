@@ -20,29 +20,18 @@ import java.util.Map;
 public class FolderService {
     private String baseUri = "folders";
     private SokoHttpClient httpClient;
-
+    private String ID;
     public FolderService(SokoHttpClient httpClient) {
         this.httpClient = httpClient;
     }
 
-    public ResponseDTO<Folder> create(String name, String parent){
-        Map<String, Object> map = new HashMap<>();
-        map.put("name", name);
-        map.put("parent", parent);
-        ResultDTO res = httpClient.post(baseUri, map);
-       return responseObject(res);
+    public CreatableField create(){
+       return new CreatableField();
     }
 
     public ResponseDTO<Folder> find(String id){
         String uri = baseUri+"/"+id;
         ResultDTO res = httpClient.get(uri);
-        return responseObject(res);
-    }
-
-    public ResponseDTO<Folder> update(String name, String id){
-        Map<String, Object> map = new HashMap<>();
-        map.put("name", name);
-        ResultDTO res = httpClient.put(baseUri, map, id);
         return responseObject(res);
     }
 
@@ -62,30 +51,19 @@ public class FolderService {
             return ResponseDTO.builder()
                     .withStatus(res.getCode())
                     .withData(FolderParser.getInstance().toModel(res.getResponse()))
+                    .withSuccess(res.isSuccess())
                     .withMessage(null)
                     .build();
         } else {
             return ResponseDTO.builder()
                     .withStatus(res.getCode())
                     .withData(null)
+                    .withSuccess(res.isSuccess())
                     .withMessage(res.getResponse())
                     .build();
         }
     }
-
     private ResponseListDTO<Folder> responseList(ResultDTO res){
-
-        System.out.println("-------------------------------");
-        System.out.println(
-
-                ResponseListDTO.builder()
-                        .withStatus(res.getCode())
-                        .withData(FolderParser.getInstance().toListModel(res.getResponse()))
-                        .withMessage(null)
-                        .build().getData()
-        );
-        System.out.println("-------------------------------");
-
         if (GsonParser.isPresents(res.getResponse())){
             return ResponseListDTO.builder()
                     .withStatus(res.getCode())
@@ -101,6 +79,72 @@ public class FolderService {
                     .withSuccess(false)
                     .withMessage(res.getResponse())
                     .build();
+        }
+    }
+
+
+    public ResponseDTO<String> delete(String id){
+        String uri = String.format("%s/%s", baseUri, id);
+        ResultDTO res = httpClient.delete(uri);
+        return ResponseDTO.builder()
+                .withMessage(res.getResponse())
+                .withStatus(res.getCode())
+                .withSuccess(res.isSuccess())
+                .withData(null)
+                .build();
+    }
+
+    public UpdatableField update(String id){
+        this.ID = id;
+        return new UpdatableField(id);
+    }
+
+
+    public class UpdatableField{
+        private String name;
+        private String _id;
+
+        public UpdatableField(String __id) {
+            this._id = __id;
+        }
+
+        public UpdatableField addName(String name){
+            this.name = name;
+            return this;
+        }
+
+        public ResponseDTO<Folder> execute(){
+            String uri = String.format("%s", baseUri);
+            Map<String, Object> map = new HashMap<>();
+            map.put("name", name);
+            ResultDTO res = httpClient.put(uri, map, _id);
+            return responseObject(res);
+        }
+    }
+
+    public class CreatableField{
+        private String name;
+        private String parent;
+
+        public CreatableField() {
+        }
+
+        public CreatableField addName(String folderName){
+            this.name = folderName;
+            return this;
+        }
+
+        public CreatableField addParent(String parentFolderNameOrId){
+            this.parent = parentFolderNameOrId;
+            return this;
+        }
+
+        public ResponseDTO<Folder> execute(){
+            Map<String, Object> map = new HashMap<>();
+            map.put("name", name);
+            map.put("parent", parent);
+            ResultDTO res = httpClient.post(baseUri, map);
+            return responseObject(res);
         }
     }
 }

@@ -1,8 +1,10 @@
 package com.nivekaa.soko;
 
 import com.nivekaa.soko.api.SokoHttpClient;
+import com.nivekaa.soko.model.Category;
 import com.nivekaa.soko.model.File;
 import com.nivekaa.soko.model.Folder;
+import com.nivekaa.soko.model.User;
 import com.nivekaa.soko.service.dto.ResponseDTO;
 import com.nivekaa.soko.service.dto.ResponseListDTO;
 
@@ -34,17 +36,20 @@ public class SokoStorage {
                 .setAppName("Soko Lib test")
                 .build();
 
-        /*String fileName = "file_test_.txt";
+        String fileName = "file_test_.txt";
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-        File file = new File(classLoader.getResource(fileName).getFile());*/
+        java.io.File file = new java.io.File(classLoader.getResource(fileName).getFile());
 
-        ResponseDTO<String> file = service
+        ResponseDTO<File> file_ = service
                 .file()
-                .delete( "98065f5d-5480-4380-9fa0-c9f25318d0fc");
+                .uploadFile()
+                .addFile(file)
+                .folder("test")
+                .execute();
 
         System.out.println("=============kk=============");
-        System.out.println(file.getMessage());
-        System.out.println(file.toJson());
+        System.out.println(file_.getMessage());
+        System.out.println(file_.toJson());
         System.out.println("=============kk=============");
 
 
