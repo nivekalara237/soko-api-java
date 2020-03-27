@@ -66,7 +66,7 @@ import java.util.Objects;
  */
 
 
-public class File extends BaseModel implements Serializable {
+public class File implements Serializable {
     @SerializedName("_id")
     private String id;
     @SerializedName("extension")
@@ -84,18 +84,6 @@ public class File extends BaseModel implements Serializable {
     @SerializedName("created_at")
     private String createdAt;
     private transient String category;
-
-    private File(Builder builder) {
-        setId(builder.id);
-        setExtension(builder.extension);
-        setSize(builder.size);
-        setFilename(builder.filename);
-        setUrl(builder.url);
-        setFolder(builder.folder);
-        setCreatedBy(builder.createdBy);
-        setCreatedAt(builder.createdAt);
-        setCategory(builder.category);
-    }
 
     public String getId() {
         return id;
@@ -198,73 +186,5 @@ public class File extends BaseModel implements Serializable {
                 ", createdAt='" + createdAt + '\'' +
                 ", category='" + category + '\'' +
                 '}';
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static final class Builder {
-        private String id;
-        private String extension;
-        private String size;
-        private String filename;
-        private String url;
-        private Folder folder;
-        private User createdBy;
-        private String createdAt;
-        private String category;
-
-        public Builder() {
-        }
-
-        public Builder withId(String id) {
-            this.id = id;
-            return this;
-        }
-
-        public Builder withExtension(String extension) {
-            this.extension = extension;
-            return this;
-        }
-
-        public Builder withSize(String size) {
-            this.size = size;
-            return this;
-        }
-
-        public Builder withFilename(String filename) {
-            this.filename = filename;
-            return this;
-        }
-
-        public Builder withUrl(String url) {
-            this.url = url;
-            return this;
-        }
-
-        public Builder withFolder(Folder folder) {
-            this.folder = folder;
-            return this;
-        }
-
-        public Builder withCreatedBy(User createdBy) {
-            this.createdBy = createdBy;
-            return this;
-        }
-
-        public Builder withCreatedAt(String createdAt) {
-            this.createdAt = createdAt;
-            return this;
-        }
-
-        public Builder withCategory(String category) {
-            this.category = category;
-            return this;
-        }
-
-        public File build() {
-            return new File(this);
-        }
     }
 }

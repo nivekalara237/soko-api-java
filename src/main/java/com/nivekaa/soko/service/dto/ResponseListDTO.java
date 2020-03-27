@@ -1,6 +1,7 @@
 package com.nivekaa.soko.service.dto;
 
 import com.nivekaa.soko.model.Pagination;
+import com.nivekaa.soko.parser.GsonParser;
 
 import java.util.List;
 
@@ -88,5 +89,9 @@ public class ResponseListDTO<D> {
         public ResponseListDTO<D> build() {
             return new ResponseListDTO<D>(this);
         }
+    }
+
+    public String toJson(){
+        return GsonParser.responseListDtoToJsonString(this);
     }
 }

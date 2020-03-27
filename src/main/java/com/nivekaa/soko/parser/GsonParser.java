@@ -1,12 +1,16 @@
 package com.nivekaa.soko.parser;
 
-import com.google.gson.FieldNamingStrategy;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
 import com.nivekaa.soko.model.Pagination;
+import com.nivekaa.soko.service.dto.ResponseDTO;
+import com.nivekaa.soko.service.dto.ResponseListDTO;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author nivekaa
@@ -15,7 +19,9 @@ import java.lang.reflect.Field;
  */
 
 public class GsonParser {
-    public static GsonBuilder builder = new GsonBuilder();
+    public static GsonBuilder builder = new GsonBuilder()
+            .serializeNulls()
+            .setPrettyPrinting();
     private static FieldNamingStrategy namingStrategy = new FieldNamingStrategy() {
         @Override
         public String translateName(Field f) {
@@ -55,6 +61,8 @@ public class GsonParser {
     }
 
     public static Pagination getPagination(String response){
+        if (!isSuccess(response))
+            return null;
         if (!isOk(response)){
             return null;
         }else {
@@ -84,5 +92,79 @@ public class GsonParser {
             return jsonObject.get("message").toString();
         }
         return "";
+    }
+
+    /**
+     *
+     * @param dto
+     * @return String
+     * @Example: {
+     *     "success": true,
+     *     "status": 200,
+     *     "message": null,
+     *     "data": Object
+     * }
+     */
+    public static String responseDtoToJsonString(ResponseDTO dto){
+        if (dto == null)
+            return "";
+        JsonObject jsonObject = new JsonObject();
+        if (dto.getData()==null){
+            jsonObject.add("data", null);
+        }else {
+            JsonObject objString = builder.create()
+                    .toJsonTree(dto.getData(), new TypeToken<Object>(){}.getType())
+                    .getAsJsonObject();
+            jsonObject.add("data", objString);
+        }
+        jsonObject.addProperty("success", dto.isSuccess());
+        jsonObject.addProperty("status", dto.getStatus());
+        jsonObject.addProperty("message", dto.getMessage());
+        return jsonObject.toString();
+    }
+
+
+    /**
+     *
+     * @param dto
+     * @return String
+     * @Example: {
+     *     "success": true,
+     *     "status": 200,
+     *     "message": null,
+     *     "data": [
+     *          Object,
+     *          Object,
+     *          ...
+     *     ],
+     *     "pagination": Object
+     * }
+     */
+    public static String responseListDtoToJsonString(ResponseListDTO dto){
+        if (dto == null)
+            return "";
+        List list;
+        JsonObject jsonObject = new JsonObject();
+        if (dto.getData() == null){
+            list = Collections.<Object>emptyList();
+        }else
+            list = dto.getData();
+
+        JsonArray objElt = builder
+                .create()
+                .toJsonTree(list, new TypeToken<List<Object>>() {}.getType())
+                .getAsJsonArray();
+        Pagination p = new Pagination();
+        if (dto.getPagination() != null)
+            p = dto.getPagination();
+        JsonObject paginationObj = builder.create()
+                .toJsonTree(p, new TypeToken<Pagination>() {}.getType())
+                .getAsJsonObject();
+        jsonObject.addProperty("success", dto.isSuccess());
+        jsonObject.addProperty("status", dto.getStatus());
+        jsonObject.addProperty("message", dto.getMessage());
+        jsonObject.add("data", objElt);
+        jsonObject.add("pagination", paginationObj);
+        return jsonObject.toString();
     }
 }

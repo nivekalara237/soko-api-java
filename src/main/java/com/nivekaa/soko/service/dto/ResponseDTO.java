@@ -1,5 +1,7 @@
 package com.nivekaa.soko.service.dto;
 
+import com.nivekaa.soko.parser.GsonParser;
+
 /**
  * @author nivekaa
  * Created 26/03/2020 at 21:19
@@ -74,5 +76,9 @@ public class ResponseDTO<D> {
 
     public boolean isSuccess() {
         return success;
+    }
+
+    public String toJson(){
+        return GsonParser.responseDtoToJsonString(this);
     }
 }

@@ -29,7 +29,7 @@ import java.util.Objects;
  *    }
  */
 
-public class Folder extends BaseModel implements Serializable {
+public class Folder implements Serializable {
     @SerializedName("_id")
     private String id;
     @SerializedName("name")
@@ -42,14 +42,6 @@ public class Folder extends BaseModel implements Serializable {
     private String createdAt;
 
     public Folder() {
-    }
-
-    private Folder(Builder builder) {
-        setId(builder.id);
-        setName(builder.name);
-        setParent(builder.parent);
-        setBase(builder.isBase);
-        setCreatedAt(builder.createdAt);
     }
 
     public String getId() {
@@ -91,11 +83,6 @@ public class Folder extends BaseModel implements Serializable {
     public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
-
-    public static Builder newBuilder() {
-        return new Builder();
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -118,48 +105,6 @@ public class Folder extends BaseModel implements Serializable {
                 ", isBase=" + isBase +
                 ", createdAt=" + createdAt +
                 ", createdAt=" + createdAt +
-                ", status=" + getStatus() +
-                ", message=" + getMessage() +
                 '}';
-    }
-
-    public static final class Builder {
-        private String id;
-        private String name;
-        private Folder parent;
-        private boolean isBase;
-        private String createdAt;
-
-        public Builder() {
-        }
-
-        public Builder withId(String id) {
-            this.id = id;
-            return this;
-        }
-
-        public Builder withName(String name) {
-            this.name = name;
-            return this;
-        }
-
-        public Builder withParent(Folder parent) {
-            this.parent = parent;
-            return this;
-        }
-
-        public Builder withIsBase(boolean isBase) {
-            this.isBase = isBase;
-            return this;
-        }
-
-        public Builder withCreatedAt(String createdAt) {
-            this.createdAt = createdAt;
-            return this;
-        }
-
-        public Folder build() {
-            return new Folder(this);
-        }
     }
 }
