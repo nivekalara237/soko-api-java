@@ -230,13 +230,18 @@ public class SokoHttpClient implements IApi{
             ResultDTO resultDTO = ResultDTO.builder()
                     .withCode(code)
                     .withResponse(resbody)
+                    .withSuccess(GsonParser.isSuccess(resbody))
                     .build();
+            System.out.println("===========================");
+            System.out.println(resbody);
+            System.out.println("===========================");
             if (clientResponse.getCode() <= 299 && clientResponse.getCode()>= 200){
                 return resultDTO;
             }else {
                 return ResultDTO.builder()
                         .withCode(code)
                         .withResponse(GsonParser.errorMsg(resbody))
+                        .withSuccess(GsonParser.isSuccess(resbody))
                         .build();
             }
         } catch (IOException | ParseException e) {

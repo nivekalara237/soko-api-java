@@ -57,11 +57,13 @@ public class FileService {
                     .withStatus(res.getCode())
                     .withData(FileParser.getInstance().toModel(res.getResponse()))
                     .withMessage(null)
+                    .withSuccess(true)
                     .build();
         } else {
                 return ResponseDTO.builder()
                     .withStatus(res.getCode())
                     .withData(null)
+                        .withSuccess(false)
                     .withMessage(res.getResponse())
                     .build();
         }
@@ -73,14 +75,14 @@ public class FileService {
                     .withStatus(res.getCode())
                     .withData(FileParser.getInstance().toListModel(res.getResponse()))
                     .withMessage(null)
-                    .withSuccess(true)
+                    .withSuccess(res.isSuccess())
                     .withPagination(GsonParser.getPagination(res.getResponse()))
                     .build();
         } else {
             return ResponseListDTO.builder()
                     .withStatus(res.getCode())
                     .withData(null)
-                    .withSuccess(false)
+                    .withSuccess(res.isSuccess())
                     .withMessage(res.getResponse())
                     .build();
         }
@@ -108,5 +110,16 @@ public class FileService {
         String uri = baseUri+"?page="+page;
         ResultDTO res = httpClient.get(uri);
         return responseList(res);
+    }
+
+    public ResponseDTO<String> delete(String id){
+        String uri = String.format("%s/%s", baseUri, id);
+        ResultDTO res = httpClient.delete(uri);
+        return ResponseDTO.builder()
+                .withMessage(res.getResponse())
+                .withStatus(res.getCode())
+                .withSuccess(res.isSuccess())
+                .withData(null)
+                .build();
     }
 }

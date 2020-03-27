@@ -89,7 +89,7 @@ public class GsonParser {
     public static String errorMsg(String json){
         if (json!=null){
             JsonObject jsonObject = builder.create().fromJson(json, JsonObject.class);
-            return jsonObject.get("message").toString();
+            return jsonObject.get("message").getAsString();
         }
         return "";
     }
@@ -137,7 +137,7 @@ public class GsonParser {
      *          Object,
      *          ...
      *     ],
-     *     "pagination": Object
+     *     "pagination": (Object)Pagination
      * }
      */
     public static String responseListDtoToJsonString(ResponseListDTO dto){
