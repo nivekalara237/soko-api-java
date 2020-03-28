@@ -22,7 +22,7 @@ public class Soko {
     private String an;
     private SokoHttpClient httpClient;
 
-    public Soko(String apikey, String appname) throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException, IOException {
+    public Soko(String apikey, String appname){ // throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException, IOException {
         this.ak = apikey;
         this.an = appname;
         this.httpClient = new SokoHttpClient(apikey, appname);
@@ -55,12 +55,13 @@ public class Soko {
         }
 
         public Soko build(){
-            try {
+            /*try {
                 return new Soko(apikey, appname);
             } catch (KeyManagementException | IOException | KeyStoreException | NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
-            return null;
+            return null;*/
+            return new Soko(apikey, appname);
         }
     }
 

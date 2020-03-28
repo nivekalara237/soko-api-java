@@ -8,10 +8,7 @@ import com.nivekaa.soko.service.dto.ResponseDTO;
 import com.nivekaa.soko.service.dto.ResponseListDTO;
 import com.nivekaa.soko.service.dto.ResultDTO;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author nivekaa
@@ -221,8 +218,9 @@ public class FileService {
             files.toArray(filesArr);
             Map<String, Object> map = new HashMap<>();
             map.put("folder", folder);
-            ResultDTO res = httpClient.multipartPost(baseUri, map, filesArr, "files");
+            ResultDTO res = httpClient.multipartPost(baseUri, map, filesArr, "file");
             return responseObject(res);
         }
     }
+
 }

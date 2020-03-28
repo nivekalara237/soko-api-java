@@ -43,6 +43,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -81,48 +82,52 @@ public class SokoHttpClient implements IApi{
         }
     };
 
-    public SokoHttpClient(String apikey, String appName) throws IOException, KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
-        String rootPath = Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResource("")).getPath();
-        String appConfigPath = rootPath + "application.yaml";
-        properties.load(new FileInputStream(appConfigPath));
+    public SokoHttpClient(String apikey, String appName){
+        try {
+            String rootPath = Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResource("")).getPath();
+            String appConfigPath = rootPath + "application.yaml";
+            properties.load(new FileInputStream(appConfigPath));
+            TrustStrategy acceptingTrustStrategy = (cert, authType)-> true;
+            SSLContext sslContext = SSLContexts.custom().loadTrustMaterial(null, acceptingTrustStrategy).build();
+            SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext, NoopHostnameVerifier.INSTANCE);
+            Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create()
+                    .register("https", sslsf).register("http", new PlainConnectionSocketFactory()).build();
 
-        TrustStrategy acceptingTrustStrategy = (cert, authType)-> true;
-        SSLContext sslContext = SSLContexts.custom().loadTrustMaterial(null, acceptingTrustStrategy).build();
-        SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext, NoopHostnameVerifier.INSTANCE);
-        Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create()
-                .register("https", sslsf).register("http", new PlainConnectionSocketFactory()).build();
+            poolingConnManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+            // Augmenter le nombre de connexions pouvant être ouvertes et gérées au-delà des limites par défaut
+            // définir le nombre maximal de connexions ouvertes totales.
+            poolingConnManager.setMaxTotal(200);
+            // définir le nombre maximal de connexions simultanées par route, qui est de 2 par défaut.
+            poolingConnManager.setDefaultMaxPerRoute(20);
 
-        poolingConnManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
-        // Augmenter le nombre de connexions pouvant être ouvertes et gérées au-delà des limites par défaut
-        // définir le nombre maximal de connexions ouvertes totales.
-        poolingConnManager.setMaxTotal(200);
-        // définir le nombre maximal de connexions simultanées par route, qui est de 2 par défaut.
-        poolingConnManager.setDefaultMaxPerRoute(20);
+            int timeoutConnection = Integer.parseInt(properties.getProperty("time-out-connection"));
+            int responseTimeoutConnection = Integer.parseInt(properties.getProperty("response-time-out-connection"));
+            RequestConfig requestConfig = RequestConfig.custom()
+                    .setConnectionRequestTimeout(Timeout.ofMilliseconds(1000*timeoutConnection))
+                    .setConnectTimeout(Timeout.ofMilliseconds(1000 * timeoutConnection))
+                    .setResponseTimeout(responseTimeoutConnection, TimeUnit.SECONDS)
+                    .build();
+            HttpHost host = new HttpHost(getUrl(), 80);
+            poolingConnManager.setMaxPerRoute(new HttpRoute(host), 20);
 
-        int timeoutConnection = Integer.parseInt(properties.getProperty("time-out-connection"));
-        int responseTimeoutConnection = Integer.parseInt(properties.getProperty("response-time-out-connection"));
-        RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectionRequestTimeout(Timeout.ofMilliseconds(1000*timeoutConnection))
-                .setConnectTimeout(Timeout.ofMilliseconds(1000 * timeoutConnection))
-                .setResponseTimeout(responseTimeoutConnection, TimeUnit.SECONDS)
-                .build();
-        HttpHost host = new HttpHost(getUrl(), 80);
-        poolingConnManager.setMaxPerRoute(new HttpRoute(host), 20);
-
-        client = HttpClients
-                .custom()
-                .disableRedirectHandling()
-                .addRequestInterceptorFirst(new RequestIntercetor(apikey, appName))
-                .setKeepAliveStrategy(keepAliveStrategy)
-                //.setDefaultHeaders(headers)
-                .setDefaultRequestConfig(requestConfig)
-                .setConnectionManager(poolingConnManager)
-                .build();
+            client = HttpClients
+                    .custom()
+                    .disableRedirectHandling()
+                    .addRequestInterceptorFirst(new RequestIntercetor(apikey, appName))
+                    .setKeepAliveStrategy(keepAliveStrategy)
+                    //.setDefaultHeaders(headers)
+                    .setDefaultRequestConfig(requestConfig)
+                    .setConnectionManager(poolingConnManager)
+                    .build();
+        } catch (IOException | NoSuchAlgorithmException | KeyStoreException | KeyManagementException e) {
+            e.printStackTrace();
+        }
     }
 
     public ResultDTO get(String path){
         return get(path,null);
     }
+
 
     public ResultDTO get(String path, Map<String, Object> params) {
         path = Stringutil.isEmpty(path) ? "" : path;
@@ -288,6 +293,9 @@ public class SokoHttpClient implements IApi{
         }
 
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        builder.setCharset(StandardCharsets.UTF_8);
+        // builder.setMode(HttpMultipartMode.EXTENDED)
+        // builder.setMode(HttpMultipartMode.LEGACY);
         if (body!=null && !body.isEmpty()){
             body.forEach((key, value) -> builder.addTextBody(key, value.toString()));
         }
@@ -298,8 +306,18 @@ public class SokoHttpClient implements IApi{
                     .withResponse("bad request: " + ErrorType.MISSING_FILES.getType())
                     .build();
         }else{
+            int i=0;
             for (File file : files) {
-                builder.addBinaryBody(fileQueryName, file, ContentType.MULTIPART_FORM_DATA, file.getName());
+                if (files.length==1)
+                    builder.addBinaryBody(fileQueryName, file, ContentType.MULTIPART_FORM_DATA, file.getName());
+                else {
+                    builder.addBinaryBody(
+                            String.format("%s[%d]", fileQueryName, i),
+                            file,
+                            ContentType.MULTIPART_FORM_DATA,
+                            file.getName());
+                }
+                i++;
             }
         }
 

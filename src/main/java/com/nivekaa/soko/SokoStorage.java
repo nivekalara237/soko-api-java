@@ -33,6 +33,7 @@ public class SokoStorage {
 
         Soko service = new Soko.Builder()
                 .setApikey("RagEvtpyXPuCVfzIqShMGl90wUDi0CcIprNg209y0lof7QcYV0IozVTC1bUa4eCZ")
+                //.setApikey("Ba3Tpp61EZ37ljV8Q74yKsK5S63KnxHcTTbkTWLmLqcfBnFn7ubQav6pfEyLrHAm")
                 .setAppName("Soko Lib test")
                 .build();
 
@@ -40,15 +41,16 @@ public class SokoStorage {
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
         java.io.File file = new java.io.File(classLoader.getResource(fileName).getFile());
 
-        ResponseDTO<File> file_ = service
+        ResponseListDTO<File> file_ = service
                 .file()
                 .uploadFile()
                 .addFile(file)
+                .addFile(file)
                 .folder("test")
-                .execute();
+                .executes();
 
         System.out.println("=============kk=============");
-        System.out.println(file_.getMessage());
+        System.out.println(file.length());
         System.out.println(file_.toJson());
         System.out.println("=============kk=============");
 
