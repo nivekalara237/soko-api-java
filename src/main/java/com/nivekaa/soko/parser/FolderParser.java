@@ -3,7 +3,6 @@ package com.nivekaa.soko.parser;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.nivekaa.soko.model.Category;
 import com.nivekaa.soko.model.Folder;
 
 import java.util.ArrayList;

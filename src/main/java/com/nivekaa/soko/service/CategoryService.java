@@ -4,7 +4,6 @@ import com.nivekaa.soko.api.SokoHttpClient;
 import com.nivekaa.soko.model.Category;
 import com.nivekaa.soko.parser.CategoryParser;
 import com.nivekaa.soko.parser.GsonParser;
-import com.nivekaa.soko.service.dto.ResponseDTO;
 import com.nivekaa.soko.service.dto.ResponseListDTO;
 import com.nivekaa.soko.service.dto.ResultDTO;
 
