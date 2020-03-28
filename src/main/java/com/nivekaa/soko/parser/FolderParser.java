@@ -46,4 +46,5 @@ public class FolderParser implements IModelParser<Folder> {
         }
         return folders;
     }
+
 }

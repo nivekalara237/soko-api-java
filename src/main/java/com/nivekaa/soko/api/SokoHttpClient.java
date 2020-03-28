@@ -297,7 +297,7 @@ public class SokoHttpClient implements IApi{
         // builder.setMode(HttpMultipartMode.EXTENDED)
         // builder.setMode(HttpMultipartMode.LEGACY);
         if (body!=null && !body.isEmpty()){
-            body.forEach((key, value) -> builder.addTextBody(key, value.toString()));
+            body.forEach((key, value) -> builder.addTextBody(key, value==null ? "" : value.toString()));
         }
 
         if (files==null || files.length==0){

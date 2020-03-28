@@ -7,10 +7,8 @@ import com.nivekaa.soko.service.dto.ResponseDTO;
 import com.nivekaa.soko.service.dto.ResponseListDTO;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author nivekaa
@@ -167,4 +165,5 @@ public class GsonParser {
         jsonObject.add("pagination", paginationObj);
         return jsonObject.toString();
     }
+
 }
