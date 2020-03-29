@@ -131,7 +131,7 @@ public class FileService {
         }
     }
 
-    private class CreateEncodeB64{
+    public class CreateEncodeB64{
         private String b64;
         private String folder;
 
@@ -174,6 +174,15 @@ public class FileService {
                 files.add(file);
             }
             return this;
+        }
+
+        public CreateFile addFile(byte[] bytes){
+            if (bytes==null || bytes.length ==0){
+                return this;
+            }else {
+                //java.io.File file = new java.io.File(bytes);
+                return null;
+            }
         }
 
 

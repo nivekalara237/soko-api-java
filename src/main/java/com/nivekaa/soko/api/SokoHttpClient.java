@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.nivekaa.soko.interceptor.RequestIntercetor;
 import com.nivekaa.soko.parser.GsonParser;
 import com.nivekaa.soko.service.dto.ResultDTO;
+import com.nivekaa.soko.util.ConfigUtil;
 import com.nivekaa.soko.util.FileUtil;
 import com.nivekaa.soko.util.Stringutil;
 import org.apache.hc.client5.http.ConnectionKeepAliveStrategy;
@@ -16,6 +17,7 @@ import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.socket.ConnectionSocketFactory;
@@ -38,11 +40,10 @@ import org.apache.hc.core5.util.Timeout;
 import org.apache.http.protocol.HTTP;
 
 import javax.net.ssl.SSLContext;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
@@ -57,13 +58,12 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class SokoHttpClient implements IApi{
-    public static final String XAPIKEY_PARAM = "X-API-KEY";
-    public static final String XAPPNAME_PARAM = "X-APP-NAME";
+    public static final String tmpPath= "tmpPath"+File.separator;
     public Properties properties = new Properties();
     private PoolingHttpClientConnectionManager poolingConnManager;
     private CloseableHttpClient client;
     public String getUrl() {
-        return properties.getProperty("soko.url");
+        return ConfigUtil.URL;
     }
 
     private ConnectionKeepAliveStrategy keepAliveStrategy = new ConnectionKeepAliveStrategy() {
@@ -100,8 +100,8 @@ public class SokoHttpClient implements IApi{
             // définir le nombre maximal de connexions simultanées par route, qui est de 2 par défaut.
             poolingConnManager.setDefaultMaxPerRoute(20);
 
-            int timeoutConnection = Integer.parseInt(properties.getProperty("time-out-connection"));
-            int responseTimeoutConnection = Integer.parseInt(properties.getProperty("response-time-out-connection"));
+            int timeoutConnection = ConfigUtil.CONNECTION_TIME_OUT;
+            int responseTimeoutConnection = ConfigUtil.RESPONSE_TIME_OUT_CONNECTION;
             RequestConfig requestConfig = RequestConfig.custom()
                     .setConnectionRequestTimeout(Timeout.ofMilliseconds(1000*timeoutConnection))
                     .setConnectTimeout(Timeout.ofMilliseconds(1000 * timeoutConnection))
@@ -344,5 +344,57 @@ public class SokoHttpClient implements IApi{
             e.printStackTrace();
             throw new RuntimeException(e.getMessage());
         }
+    }
+
+    public InputStream downloadAsIs(String url) throws IOException, ParseException {
+        HttpGet request = new HttpGet(url);
+        CloseableHttpResponse response = client.execute(request);
+        HttpEntity httpEntity = response.getEntity();
+        if (isOk(response.getCode())){
+            InputStream is = httpEntity.getContent();
+            client.close();
+            return is;
+        }
+        else{
+            client.close();
+            throw new IOException(EntityUtils.toString(httpEntity));
+        }
+    }
+
+    public File downloadAsFile(String url) throws IOException, ParseException {
+        HttpGet request = new HttpGet(url);
+        CloseableHttpClient closeableHttpResponse = HttpClientBuilder.create().build();
+        CloseableHttpResponse response = closeableHttpResponse.execute(request);
+        HttpEntity httpEntity = response.getEntity();
+        String extension = url.substring(url.lastIndexOf(".", url.length()));
+        String fileName = UUID.randomUUID().toString()
+                .replaceAll("-", "")
+                .concat(".")
+                .concat(extension);
+        if (isOk(response.getCode())){
+            InputStream is = httpEntity.getContent();
+            File convFile = new File(tmpPath+fileName);
+            convFile.createNewFile();
+            FileOutputStream fos = new FileOutputStream(convFile);
+            int inByte;
+            while ((inByte = is.read()) != -1) {
+                fos.write(inByte);
+            }
+            File originalFile = new File(convFile.getAbsolutePath());
+            convFile.deleteOnExit();
+            is.close();
+            fos.close();
+            closeableHttpResponse.close();
+            return originalFile;
+        }
+        else{
+            closeableHttpResponse.close();
+            throw new IOException(EntityUtils.toString(httpEntity));
+            //return null;
+        }
+    }
+
+    private boolean isOk(int code){
+        return code <= 299 && code >= 200;
     }
 }

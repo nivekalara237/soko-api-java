@@ -1,6 +1,8 @@
 package com.nivekaa.soko.util;
 
-import java.io.File;
+import java.io.*;
+import java.net.URLConnection;
+import java.util.UUID;
 
 /**
  * @author nivekaa
@@ -32,5 +34,40 @@ public class FileUtil {
             size += files.length;
         }
         return size;
+    }
+
+
+    public static File download(String url){
+        return null;
+    }
+
+    public static File bytesToFile(byte[] bytes){
+        String uuid = UUID.randomUUID().toString();
+        try {
+
+            InputStream inputStream = new ByteArrayInputStream(bytes);
+            String mimeType = URLConnection.guessContentTypeFromStream(inputStream);
+
+            System.out.println("======================");
+            System.out.println(mimeType);
+            System.out.println("======================");
+
+            File tempFile = File.createTempFile("soko_tmp_file", ".tmp");
+            //tempFile.deleteOnExit();
+            //tempFile.deleteOnExit();
+            FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
+            fileOutputStream.write(bytes);
+            fileOutputStream.close();
+
+            File originalFile = tempFile.getCanonicalFile();
+
+            System.out.println("=====================");
+            System.out.println(originalFile.getAbsolutePath());
+            System.out.println("=====================");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

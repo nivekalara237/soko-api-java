@@ -1,6 +1,6 @@
 package com.nivekaa.soko.interceptor;
 
-import com.nivekaa.soko.api.SokoHttpClient;
+import com.nivekaa.soko.util.ConfigUtil;
 import org.apache.hc.core5.http.*;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
@@ -26,8 +26,8 @@ public class RequestIntercetor implements HttpRequestInterceptor {
     public void process(HttpRequest request, EntityDetails entityDetails, HttpContext context) throws HttpException, IOException {
         //System.out.println("addRequestInterceptorFirst with HttpRequestInterceptor");
         request.setHeader("requestId", Long.toString(count.incrementAndGet()));
-        request.addHeader(SokoHttpClient.XAPIKEY_PARAM, apiKey);
-        request.addHeader(SokoHttpClient.XAPPNAME_PARAM, appName);
+        request.addHeader(ConfigUtil.XAPIKEY_PARAM, apiKey);
+        request.addHeader(ConfigUtil.XAPPNAME_PARAM, appName);
         request.addHeader("accept", "application/json");
     }
 

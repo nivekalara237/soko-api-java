@@ -17,6 +17,10 @@ public class Soko {
     private String an;
     private SokoHttpClient httpClient;
 
+    public SokoHttpClient client() {
+        return httpClient;
+    }
+
     public Soko(String apikey, String appname){ // throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException, IOException {
         this.ak = apikey;
         this.an = appname;

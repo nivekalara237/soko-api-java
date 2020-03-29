@@ -1,5 +1,4 @@
 package com.nivekaa.soko;
-
 /**
  * @author nivekaa
  * Created 22/03/2020 at 02:54
@@ -7,6 +6,6 @@ package com.nivekaa.soko;
  */
 
 public class SokoStorage {
-    public static void main(String[] args){
+    public static void main(String[] args) {
     }
 }
