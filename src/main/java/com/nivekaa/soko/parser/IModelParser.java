@@ -9,6 +9,6 @@ import java.util.List;
  */
 
 public interface IModelParser<C> {
-    public C toModel(String json);
-    public List<C> toListModel(String json);
+    C toModel(String json);
+    List<C> toListModel(String json);
 }

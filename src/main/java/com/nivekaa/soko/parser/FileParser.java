@@ -32,7 +32,7 @@ public class FileParser implements IModelParser<File> {
     @Override
     public List<File> toListModel(String json) {
         if (!GsonParser.isPresents(json)){
-            return Collections.<File>emptyList();
+            return Collections.emptyList();
         }
         JsonObject jsonObject = new Gson().fromJson(json, JsonObject.class);
         JsonArray array = jsonObject.get("presents").getAsJsonObject().get("data").getAsJsonArray();

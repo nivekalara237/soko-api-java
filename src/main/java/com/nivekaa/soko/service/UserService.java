@@ -28,7 +28,7 @@ public class UserService {
         return responseObject(res);
     }
 
-    public UpdatableField update(String id){
+    public UpdatableField update(Long id){
         return new UpdatableField(id);
     }
 
@@ -52,9 +52,9 @@ public class UserService {
 
     public class UpdatableField{
         private String name;
-        private String _id;
+        private Long _id;
 
-        public UpdatableField(String __id) {
+        public UpdatableField(Long __id) {
             this._id = __id;
         }
 
@@ -67,7 +67,7 @@ public class UserService {
             String uri = String.format("%s/%s", baseUri, "update");
             Map<String, Object> map = new HashMap<>();
             map.put("name", name);
-            ResultDTO res = httpClient.put(uri, map, _id);
+            ResultDTO res = httpClient.put(uri, map, String.valueOf(_id));
             return responseObject(res);
         }
     }

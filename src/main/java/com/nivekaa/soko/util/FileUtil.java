@@ -22,10 +22,6 @@ public class FileUtil {
         return (double) l / 1024;
     }
 
-    public static double getFileSizeBytes(long l) {
-        return l;
-    }
-
     public static long filesSize(File[] files){
         if (files==null)
             return 0L;
@@ -34,11 +30,6 @@ public class FileUtil {
             size += files.length;
         }
         return size;
-    }
-
-
-    public static File download(String url){
-        return null;
     }
 
     public static File bytesToFile(byte[] bytes){

@@ -1,6 +1,7 @@
 package com.nivekaa.soko;
 
 import com.nivekaa.soko.api.SokoHttpClient;
+import com.nivekaa.soko.handler.ProgressListener;
 import com.nivekaa.soko.service.CategoryService;
 import com.nivekaa.soko.service.FileService;
 import com.nivekaa.soko.service.FolderService;
@@ -16,20 +17,38 @@ public class Soko {
     private String ak;
     private String an;
     private SokoHttpClient httpClient;
+    private ProgressListener.Callback eventProgress;
 
     public SokoHttpClient client() {
         return httpClient;
     }
 
+    public Soko onEventProgress(ProgressListener.Callback eventProgress) throws Exception {
+        if (this.httpClient == null){
+            throw new Exception("build() must be calling before onEventProgress() method");
+        } else {
+            this.eventProgress = eventProgress;
+            this.httpClient.setCallbackProgress(eventProgress);
+        }
+        return this;
+    }
+
     public Soko(String apikey, String appname){ // throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException, IOException {
         this.ak = apikey;
         this.an = appname;
-        this.httpClient = new SokoHttpClient(apikey, appname);
+        this.httpClient = new SokoHttpClient(apikey, appname, false);
+    }
+
+    public Soko(String apikey, String appname, boolean debug){ // throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException, IOException {
+        this.ak = apikey;
+        this.an = appname;
+        this.httpClient = new SokoHttpClient(apikey, appname, debug);
     }
 
     public static class Builder{
         private String apikey;
         private String appname;
+        private boolean debuggable = false;
 
         public Builder setApikey(String apikey) {
             this.apikey = apikey;
@@ -38,6 +57,11 @@ public class Soko {
 
         public Builder setAppName(String appname) {
             this.appname = appname;
+            return this;
+        }
+
+        public Builder setDebuggable(boolean withDebug) {
+            this.debuggable = withDebug;
             return this;
         }
 
@@ -60,7 +84,7 @@ public class Soko {
                 e.printStackTrace();
             }
             return null;*/
-            return new Soko(apikey, appname);
+            return new Soko(apikey, appname, debuggable);
         }
     }
 

@@ -32,7 +32,7 @@ public class UserParser implements IModelParser<User> {
     @Override
     public List<User> toListModel(String json) {
         if (!GsonParser.isPresents(json)){
-            return Collections.<User>emptyList();
+            return Collections.emptyList();
         }
         JsonObject jsonObject = new Gson().fromJson(json, JsonObject.class);
         JsonArray array = jsonObject.get("presents").getAsJsonObject().get("data").getAsJsonArray();

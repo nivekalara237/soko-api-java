@@ -1,12 +1,10 @@
 package com.nivekaa.soko.interceptor;
 
-import org.apache.hc.core5.http.EntityDetails;
-import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.HttpResponseInterceptor;
+import org.apache.hc.core5.http.*;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * @author nivekaa
@@ -15,7 +13,15 @@ import java.io.IOException;
  */
 
 public class ResponseInterceptor implements HttpResponseInterceptor {
-    public void process(HttpResponse httpResponse, EntityDetails entityDetails, HttpContext httpContext) throws HttpException, IOException {
+    private boolean debug;
+    public ResponseInterceptor(boolean debuggable) {
+        this.debug = debuggable;
+    }
 
+    public void process(HttpResponse response, EntityDetails entityDetails, HttpContext httpContext) throws HttpException, IOException {
+        if (debug) {
+            System.out.println("<<<<<<<<<<<<<<<<<------ OUTPUT ------|");
+            System.out.println(response.getCode() + " " + response.getReasonPhrase());
+        }
     }
 }
