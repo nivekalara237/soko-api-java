@@ -5,6 +5,21 @@ Library to make storage in soko app.
 
 > docs : [[Swagger-api](https://soko.isjetokoss.xyz/api/docs)]
 
+1 - Installation
+
+`Maven`
+```xml
+<dependency>
+    <groupId>com.nivekaa</groupId>
+    <artifactId>soko_storage</artifactId>
+    <version>{LATEST_VERSION}</version>
+</dependency>
+```
+`Gradle`
+```gradle
+implemention 'com.nivekaa:soko_storage:{LATEST_VERSION}'
+```
+
 How to use use it:
 - Connect to website, create an account and add some API-KEY (copied this api-key value)
 - Open your java projet and instanciaté a new object of Soko class:
@@ -16,7 +31,7 @@ Soko soko = new Soko.Builder()
                 .build();
                 
 ```
-1 - Create new folder
+2 - Create new folder
 
 ```java
 ResponseDTO<Folder> res = soko.folder()
@@ -47,7 +62,7 @@ ResponseDTO<Folder> res = soko.folder()
 ```
 
 
-2 - Example for uploading file
+3 - Example for uploading file
 ```java
 // fila is java.io.File object
 String fileName = "file_test_.txt";
