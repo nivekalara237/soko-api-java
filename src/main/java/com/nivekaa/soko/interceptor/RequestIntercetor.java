@@ -18,9 +18,11 @@ public class RequestIntercetor implements HttpRequestInterceptor {
     private AtomicLong count = new AtomicLong(0);
     private String apiKey;
     private String appName;
-    public RequestIntercetor(String apikey, String appName) {
+    private boolean debug;
+    public RequestIntercetor(String apikey, String appName, boolean debug) {
         this.apiKey = apikey;
         this.appName = appName;
+        this.debug = debug;
     }
 
     public void process(HttpRequest request, EntityDetails entityDetails, HttpContext context) throws HttpException, IOException {
@@ -29,13 +31,20 @@ public class RequestIntercetor implements HttpRequestInterceptor {
         request.addHeader(ConfigUtil.XAPIKEY_PARAM, apiKey);
         request.addHeader(ConfigUtil.XAPPNAME_PARAM, appName);
         request.addHeader("accept", "application/json");
+        if (debug) {
+            System.out.println("-------------------------------------------------");
+            System.out.println("|  PATH    : " + request.getPath());
+            System.out.println("|  METHOD  : " + request.getMethod());
+            System.out.println("|  VERSION : " + request.getScheme());
+            System.out.println("'-------------------------------------------------");
+            System.out.println("\n>>>>>>>>------ Headers ------->>>>>>>");
+            logHeaders(request.getHeaders());
+            // logEntities();
+        }
+
     }
 
     private void logHeaders(Header[] headers){
-        Arrays.asList(headers).forEach(header -> System.out.println(header.getName()+" : "+ header.getValue()));
-    }
-
-    private void logEntities(Header[] headers){
         Arrays.asList(headers).forEach(header -> System.out.println(header.getName()+" : "+ header.getValue()));
     }
 }

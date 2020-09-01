@@ -34,7 +34,7 @@ public class FolderParser implements IModelParser<Folder> {
     @Override
     public List<Folder> toListModel(String json) {
         if (!GsonParser.isPresents(json)){
-            return Collections.<Folder>emptyList();
+            return Collections.emptyList();
         }
         JsonObject jsonObject = new Gson().fromJson(json, JsonObject.class);
         JsonArray array = jsonObject.get("presents").getAsJsonObject().get("data").getAsJsonArray();

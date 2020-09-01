@@ -1,19 +1,8 @@
 package com.nivekaa.soko;
 
-import com.nivekaa.soko.handler.ProgressListener;
 import com.nivekaa.soko.model.File;
+import com.nivekaa.soko.model.Folder;
 import com.nivekaa.soko.service.dto.ResponseDTO;
-import com.nivekaa.soko.util.FileUtil;
-import org.apache.commons.codec.Charsets;
-import org.apache.hc.core5.http.Chars;
-import org.apache.hc.core5.http.ParseException;
-import org.apache.hc.core5.net.URLEncodedUtils;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLEncoder;
 
 /**
  * @author nivekaa
@@ -27,22 +16,23 @@ public class SokoStorage {
 
         Soko soko = new Soko.Builder()
                 .setApikey("RagEvtpyXPuCVfzIqShMGl90wUDi0CcIprNg209y0lof7QcYV0IozVTC1bUa4eCZ")
-                //.setApikey("Ba3Tpp61EZ37ljV8Q74yKsK5S63KnxHcTTbkTWLmLqcfBnFn7ubQav6pfEyLrHAm")
                 .setAppName("Soko Lib test")
+                .setDebuggable(true)
                 .build();
-        soko.onEventProgress(percent -> {
-            System.out.println("===================================");
-            System.out.println(percent);
-            System.out.println("===================================");
-        });
+        soko.onEventProgress(percent -> { });
 
         String fileName = "img.png";
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
         java.io.File file = new java.io.File(classLoader.getResource(fileName).getFile());
 
-        ResponseDTO<File> res = soko.file()
+        /*ResponseDTO<File> res = soko.file()
                 .uploadFile()
                 .addFile(file)
+                .execute();*/
+        ResponseDTO<Folder> res = soko.folder()
+                .create()
+                .addName("test - " + System.currentTimeMillis())
+                .addParent("my drive")
                 .execute();
 
         System.out.println(res.getData());

@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.nivekaa.soko.handler.CustomMultiPartEntity;
 import com.nivekaa.soko.handler.ProgressListener;
 import com.nivekaa.soko.interceptor.RequestIntercetor;
+import com.nivekaa.soko.interceptor.ResponseInterceptor;
 import com.nivekaa.soko.parser.GsonParser;
 import com.nivekaa.soko.service.dto.ResultDTO;
 import com.nivekaa.soko.util.ConfigUtil;
@@ -53,6 +54,8 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @author nivekaa
@@ -66,6 +69,7 @@ public class SokoHttpClient implements IApi{
     private PoolingHttpClientConnectionManager poolingConnManager;
     private CloseableHttpClient client;
     private ProgressListener.Callback callbackProgress;
+    private boolean debuggable;
 
     public SokoHttpClient setCallbackProgress(ProgressListener.Callback callback) {
         this.callbackProgress = callback;
@@ -76,23 +80,21 @@ public class SokoHttpClient implements IApi{
         return ConfigUtil.URL;
     }
 
-    private ConnectionKeepAliveStrategy keepAliveStrategy = new ConnectionKeepAliveStrategy() {
-        @Override
-        public TimeValue getKeepAliveDuration(HttpResponse httpResponse, HttpContext httpContext) {
-            BasicHeaderElementIterator iterator = new BasicHeaderElementIterator(httpResponse.headerIterator(HTTP.CONN_KEEP_ALIVE));
-            if (iterator.hasNext()) {
-                HeaderElement he = iterator.next();
-                String value = he.getValue();
-                String param = he.getName();
-                if (value!=null && param.equalsIgnoreCase("timeout")){
-                    return TimeValue.ofMilliseconds(Long.parseLong(value) * 1000);
-                }
+    private ConnectionKeepAliveStrategy keepAliveStrategy = (httpResponse, httpContext) -> {
+        BasicHeaderElementIterator iterator = new BasicHeaderElementIterator(httpResponse.headerIterator(HTTP.CONN_KEEP_ALIVE));
+        if (iterator.hasNext()) {
+            HeaderElement he = iterator.next();
+            String value = he.getValue();
+            String param = he.getName();
+            if (value!=null && param.equalsIgnoreCase("timeout")){
+                return TimeValue.ofMilliseconds(Long.parseLong(value) * 1000);
             }
-            return TimeValue.ofMilliseconds(5 * 1000);
         }
+        return TimeValue.ofMilliseconds(5 * 1000);
     };
 
     public SokoHttpClient(String apikey, String appName, boolean debug){
+        this.debuggable = debug;
         try {
             String rootPath = Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResource("")).getPath();
             String appConfigPath = rootPath + "application.yaml";
@@ -123,7 +125,8 @@ public class SokoHttpClient implements IApi{
             client = HttpClients
                     .custom()
                     .disableRedirectHandling()
-                    .addRequestInterceptorFirst(new RequestIntercetor(apikey, appName))
+                    .addRequestInterceptorFirst(new RequestIntercetor(apikey, appName, debuggable))
+                    .addResponseInterceptorFirst(new ResponseInterceptor(debuggable))
                     .setKeepAliveStrategy(keepAliveStrategy)
                     //.setDefaultHeaders(headers)
                     .setDefaultRequestConfig(requestConfig)
@@ -157,7 +160,7 @@ public class SokoHttpClient implements IApi{
                     .withCode(code)
                     .withResponse(body)
                     .build();
-            if (clientResponse.getCode() <= 299 && clientResponse.getCode()>= 200){
+            if (isOk(clientResponse.getCode())){
                 return resultDTO;
             }else {
                 return ResultDTO.builder()
@@ -183,11 +186,14 @@ public class SokoHttpClient implements IApi{
             CloseableHttpResponse clientResponse = client.execute(httpPost);
             int code = clientResponse.getCode();
             String resbody = EntityUtils.toString(clientResponse.getEntity());
+            if (debuggable) {
+                System.out.println(resbody);
+            }
             ResultDTO resultDTO = ResultDTO.builder()
                     .withCode(code)
                     .withResponse(resbody)
                     .build();
-            if (clientResponse.getCode() <= 299 && clientResponse.getCode()>= 200){
+            if (isOk(clientResponse.getCode())){
                 return resultDTO;
             }else {
                 return ResultDTO.builder()
@@ -215,11 +221,14 @@ public class SokoHttpClient implements IApi{
             CloseableHttpResponse clientResponse = client.execute(httpPost);
             int code = clientResponse.getCode();
             String resbody = EntityUtils.toString(clientResponse.getEntity());
+            if (debuggable) {
+                System.out.println(resbody);
+            }
             ResultDTO resultDTO = ResultDTO.builder()
                     .withCode(code)
                     .withResponse(resbody)
                     .build();
-            if (clientResponse.getCode() <= 299 && clientResponse.getCode()>= 200){
+            if (isOk(clientResponse.getCode())){
                 return resultDTO;
             }else {
                 return ResultDTO.builder()
@@ -242,12 +251,15 @@ public class SokoHttpClient implements IApi{
             CloseableHttpResponse clientResponse = client.execute(httpDelete);
             int code = clientResponse.getCode();
             String resbody = EntityUtils.toString(clientResponse.getEntity());
+            if (debuggable) {
+                System.out.println(resbody);
+            }
             ResultDTO resultDTO = ResultDTO.builder()
                     .withCode(code)
                     .withResponse(resbody)
                     .withSuccess(GsonParser.isSuccess(resbody))
                     .build();
-            if (clientResponse.getCode() <= 299 && clientResponse.getCode()>= 200){
+            if (isOk(clientResponse.getCode())){
                 return resultDTO;
             }else {
                 return ResultDTO.builder()
@@ -274,11 +286,14 @@ public class SokoHttpClient implements IApi{
             CloseableHttpResponse clientResponse = client.execute(httpDelete);
             int code = clientResponse.getCode();
             String resbody = EntityUtils.toString(clientResponse.getEntity());
+            if (debuggable) {
+                System.out.println(resbody);
+            }
             ResultDTO resultDTO = ResultDTO.builder()
                     .withCode(code)
                     .withResponse(resbody)
                     .build();
-            if (clientResponse.getCode() <= 299 && clientResponse.getCode()>= 200){
+            if (isOk(clientResponse.getCode())){
                 return resultDTO;
             }else {
                 return ResultDTO.builder()
@@ -337,8 +352,18 @@ public class SokoHttpClient implements IApi{
         long finalTotalSize = totalSize;
         CustomMultiPartEntity multipart = new CustomMultiPartEntity(transfered -> {
             float progress = (transfered / (float) finalTotalSize) * 100;
-            System.err.println("=========TRANSFERRED=========" + transfered + "=====================");
-            System.err.println("==========PERCENTAGE========" + progress + "=====================");
+            //System.err.println("=========TRANSFERRED=========" + transfered + "=====================");
+            //System.err.println("==========PERCENTAGE========" + progress + "=====================");
+            if (progress>=100) progress = 100;
+
+            if (debuggable) {
+                if ((int)progress < 2) {
+                    System.out.print(
+                            IntStream.range(0, (int)progress)
+                                    .mapToObj(i -> ">").collect(Collectors.joining(""))
+                    );
+                }
+            }
             if (callbackProgress!=null) {
                 callbackProgress.progress(progress);
             }
@@ -348,11 +373,14 @@ public class SokoHttpClient implements IApi{
             CloseableHttpResponse clientResponse = client.execute(httpPost);
             int code = clientResponse.getCode();
             String resbody = EntityUtils.toString(clientResponse.getEntity());
+            if (debuggable) {
+                System.out.println(resbody);
+            }
             ResultDTO resultDTO = ResultDTO.builder()
                     .withCode(code)
                     .withResponse(resbody)
                     .build();
-            if (clientResponse.getCode() <= 299 && clientResponse.getCode()>= 200){
+            if (isOk(clientResponse.getCode())){
                 return resultDTO;
             }else {
                 return ResultDTO.builder()

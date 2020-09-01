@@ -20,12 +20,7 @@ public class GsonParser {
     public static GsonBuilder builder = new GsonBuilder()
             .serializeNulls()
             .setPrettyPrinting();
-    private static FieldNamingStrategy namingStrategy = new FieldNamingStrategy() {
-        @Override
-        public String translateName(Field f) {
-            return f.getName().replace("_", "");
-        }
-    };
+    private static FieldNamingStrategy namingStrategy = f -> f.getName().replace("_", "");
 
     public static Object striingToModel(String json, Class clazz){
         builder.setFieldNamingStrategy(namingStrategy);

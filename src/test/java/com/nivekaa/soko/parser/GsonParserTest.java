@@ -3,7 +3,6 @@ package com.nivekaa.soko.parser;
 import com.nivekaa.soko.model.File;
 import com.nivekaa.soko.model.Pagination;
 import com.nivekaa.soko.service.dto.ResponseDTO;
-import com.nivekaa.soko.service.dto.ResponseListDTO;
 import com.nivekaa.soko.util.Data;
 import junit.framework.TestCase;
 

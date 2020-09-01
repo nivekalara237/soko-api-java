@@ -8,7 +8,7 @@ package com.nivekaa.soko.handler;
 
 public interface ProgressListener {
     void transferred(long transfered);
-    static interface Callback{
+    interface Callback{
         void progress(float percent);
     }
 }
