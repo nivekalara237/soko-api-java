@@ -1,6 +1,8 @@
 package com.nivekaa.soko.api;
 
 import com.google.gson.Gson;
+import com.nivekaa.soko.handler.CustomMultiPartEntity;
+import com.nivekaa.soko.handler.ProgressListener;
 import com.nivekaa.soko.interceptor.RequestIntercetor;
 import com.nivekaa.soko.parser.GsonParser;
 import com.nivekaa.soko.service.dto.ResultDTO;
@@ -14,6 +16,7 @@ import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.entity.mime.HttpMultipartMode;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
@@ -62,6 +65,13 @@ public class SokoHttpClient implements IApi{
     public Properties properties = new Properties();
     private PoolingHttpClientConnectionManager poolingConnManager;
     private CloseableHttpClient client;
+    private ProgressListener.Callback callbackProgress;
+
+    public SokoHttpClient setCallbackProgress(ProgressListener.Callback callback) {
+        this.callbackProgress = callback;
+        return this;
+    }
+
     public String getUrl() {
         return ConfigUtil.URL;
     }
@@ -295,11 +305,12 @@ public class SokoHttpClient implements IApi{
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         builder.setCharset(StandardCharsets.UTF_8);
         // builder.setMode(HttpMultipartMode.EXTENDED)
-        // builder.setMode(HttpMultipartMode.LEGACY);
+        //builder.setMode(HttpMultipartMode.STRICT);
         if (body!=null && !body.isEmpty()){
             body.forEach((key, value) -> builder.addTextBody(key, value==null ? "" : value.toString()));
         }
 
+        long totalSize = 0;
         if (files==null || files.length==0){
             return ResultDTO.builder()
                     .withCode(400)
@@ -318,11 +329,20 @@ public class SokoHttpClient implements IApi{
                             file.getName());
                 }
                 i++;
+                totalSize += file.length();
             }
         }
-
         HttpPost httpPost = httpPost(path);
-        HttpEntity multipart = builder.build();
+        // HttpEntity multipart = builder.build();
+        long finalTotalSize = totalSize;
+        CustomMultiPartEntity multipart = new CustomMultiPartEntity(transfered -> {
+            float progress = (transfered / (float) finalTotalSize) * 100;
+            System.err.println("=========TRANSFERRED=========" + transfered + "=====================");
+            System.err.println("==========PERCENTAGE========" + progress + "=====================");
+            if (callbackProgress!=null) {
+                callbackProgress.progress(progress);
+            }
+        }, builder.build());
         httpPost.setEntity(multipart);
         try {
             CloseableHttpResponse clientResponse = client.execute(httpPost);
