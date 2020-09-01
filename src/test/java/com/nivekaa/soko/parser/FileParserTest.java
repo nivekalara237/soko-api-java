@@ -27,7 +27,6 @@ public class FileParserTest extends TestCase {
         assertNotNull(file);
         assertEquals("994ec4c7-e1d3-480b-a45a-7dae42414a36", file.getId());
         assertEquals("png", file.getExtension());
-
     }
 
     public void testToListModel() {

@@ -7,9 +7,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="soko_storage" />
         <module name="soko-java" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="soko_storage" target="8" />
+    </bytecodeTargetLevel>
   </component>
 </project>

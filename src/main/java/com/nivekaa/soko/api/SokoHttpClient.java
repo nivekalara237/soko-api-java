@@ -82,7 +82,7 @@ public class SokoHttpClient implements IApi{
         }
     };
 
-    public SokoHttpClient(String apikey, String appName){
+    public SokoHttpClient(String apikey, String appName, boolean debug){
         try {
             String rootPath = Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResource("")).getPath();
             String appConfigPath = rootPath + "application.yaml";

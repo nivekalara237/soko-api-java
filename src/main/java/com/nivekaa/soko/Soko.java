@@ -24,12 +24,19 @@ public class Soko {
     public Soko(String apikey, String appname){ // throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException, IOException {
         this.ak = apikey;
         this.an = appname;
-        this.httpClient = new SokoHttpClient(apikey, appname);
+        this.httpClient = new SokoHttpClient(apikey, appname, false);
+    }
+
+    public Soko(String apikey, String appname, boolean debug){ // throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException, IOException {
+        this.ak = apikey;
+        this.an = appname;
+        this.httpClient = new SokoHttpClient(apikey, appname, debug);
     }
 
     public static class Builder{
         private String apikey;
         private String appname;
+        private boolean debuggable = false;
 
         public Builder setApikey(String apikey) {
             this.apikey = apikey;
@@ -38,6 +45,11 @@ public class Soko {
 
         public Builder setAppName(String appname) {
             this.appname = appname;
+            return this;
+        }
+
+        public Builder setDebuggable(boolean withDebug) {
+            this.debuggable = withDebug;
             return this;
         }
 
@@ -60,7 +72,7 @@ public class Soko {
                 e.printStackTrace();
             }
             return null;*/
-            return new Soko(apikey, appname);
+            return new Soko(apikey, appname, debuggable);
         }
     }
 

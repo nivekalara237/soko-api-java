@@ -81,4 +81,15 @@ public class ResponseDTO<D> {
     public String toJson(){
         return GsonParser.responseDtoToJsonString(this);
     }
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("ResponseDTO{");
+        sb.append("status=").append(status);
+        sb.append(", success=").append(success);
+        sb.append(", message='").append(message).append('\'');
+        sb.append(", data=").append(data);
+        sb.append('}');
+        return sb.toString();
+    }
 }
